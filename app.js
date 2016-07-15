@@ -198,6 +198,7 @@ app.post('/webhook/', function(req, res){
   // console.log(req.body.test)
   var messageReceived;
 
+  console.log("EVENT MESSAGE", event.messageid)
   if (event.postback) {
     messageReceived = event.postback.payload
   } messageReceived = event.message.text;
