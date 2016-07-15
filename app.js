@@ -3,6 +3,14 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const request = require('request')
 const app = express()
+const token = "EAACGElIklxMBAGeo6OyZBOOPCudxZCun6dF7noz5P3HixXIzeZClJNDkzQLAFZCyl61Thn98jXzuNo6bE85ZBaxmK5bBmutKFR9O9mLuFJl5h6NHl55L1EmslH6u53IbKtLYTqj2FPmIojrv2wpJ0odaS7ZCh5RUY0XXGymp3qxQZDZD"
+
+
+
+app.set('port', (process.env.PORT)|| 3000)
+app.use(bodyParser.urlencoded({extended: false}))
+
+app.use(bodyParser.json())
 
 var state = {
 
@@ -38,6 +46,19 @@ var prompts = {
 //Models
 var User = require('./models/models').User;
 
+app.get('/', function(req, res) {
+  res.send('I am a chatbot')
+})
+
+
+
+
+
+
+app.get('/', function (req, res) {
+    res.send('Hello world, I am a chat bot')
+})
+
 //get user's messages and verify the token. This is from the website
 app.get('/webhook/', function(req, res) {
   console.log(req.query)
@@ -46,6 +67,10 @@ app.get('/webhook/', function(req, res) {
     }
     return res.send('Error, wrong token')
 })
+
+// app.listen(app.get('port'), function() {
+//     console.log('running on port', app.get('port'))
+// })
 
 
 var stateHanders = {
