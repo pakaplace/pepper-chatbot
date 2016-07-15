@@ -375,6 +375,23 @@ function sendTextMessages(sender, text, callback) {
   }
 }
 
+
+// getRoutine({context, entities}) {
+//   return new Promise(function(resolve, reject) {
+//     var routine = firstEntityValue(entities, "routine")
+//     if (routine) {
+//       context.myroutine = 'your routine is ' + routine; // we should call a weather API here
+//       delete context.missingRoutine;
+//     } else {
+//       context.missingRoutine = true;
+//       delete context.myroutine;
+//     }
+//     return resolve(context);
+//   });
+// },
+
+
+
 function resToMorningRoutine(sender, callback) {
     let messageData = {
         "attachment": {
