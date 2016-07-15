@@ -26,6 +26,10 @@ var prompts = {
              "I'll help you get up in the mornings and fulfill your personal goals"],
  "SETUP": ["Meditation, pushups, tea? What's one thing you should you be doing every morning?",
              "For example, you could respond 'Meditation for 10 minutes', or... 'Read for 20 minutes'?"],
+ "MOREROUTINE": ['Would you like to add another morning routine?'],
+ "CITY": ['What city do you live in?'],
+ 'TIMETOWAKEUP':['What time to you want me to wake up?'],
+ 'FINISHEDSETUP': ["Your routine is X, We'll remind every X hours. If you'd like to change your settings at any time, send'menu'. You are set"],
  "DENYSETUP": ["Slow to rise, huh? You can always go back and add a routine later"],
  "SETUPCOMPLETE": ["You're all set up, from now on I'll remind you daily!", "If you'd like to start now, say something..."],
  "TASKPROMPT": ["Great, what do you have to do today?", "Separate tasks by comma since I'm dumb"]
@@ -33,12 +37,6 @@ var prompts = {
 
 //Models
 var User = require('./models/models').User;
-
-app.set('port', (process.env.PORT)|| 3000)
-
-app.use(bodyParser.urlencoded({extended: false}))
-
-app.use(bodyParser.json())
 
 //get user's messages and verify the token. This is from the website
 app.get('/webhook/', function(req, res) {
@@ -49,25 +47,68 @@ app.get('/webhook/', function(req, res) {
     return res.send('Error, wrong token')
 })
 
-app.listen(app.get('port'), function() {
-    console.log('running on port', app.get('port'))
-})
 
-app.post('/webhook/', function(req, res){
-  var stateHanders = {
+var stateHanders = {
     0: function(user, messageReceived) { //
+      // Greet
+      //return state and message --> message can be an object
+      user.state = 1
+      return {
+        user: user,
+        messageSend: prompts.WELCOME
+      }
+    },
+    1: function(user, messageReceived) { //
       // Greet
       //return state and message --> message can be an object
       user.state = 2
       return {
         user: user,
-        messageSend: "Hello there, I am Pam, your personal assistant. Let's set you up",
-        "I'll help you get up in the mornings and fulfill your personal goals"
+        messageSend: prompts.SETUP
       }
     },
-    1: function()
+    2: function(user, messageReceived) { //
+      // Greet
+      //return state and message --> message can be an object
+      user.state = 3
+      return {
+        user: user,
+        messageSend: prompts.MOREROUTINE
+      }
+    },
+    3: function(user, messageReceived) { //
+      // Greet
+      //return state and message --> message can be an object
+      user.state = 4
+      return {
+        user: user,
+        messageSend: prompts.CITY
+      }
+    },
+    4: function(user, messageReceived) { //
+      // Greet
+      //return state and message --> message can be an object
+      user.state = 5
+      return {
+        user: user,
+        messageSend: prompts.TIMETOWAKEUP
+      }
+    },
+    5: function(user, messageReceived) { //
+      // Greet
+      //return state and message --> message can be an object
+      user.state = 6
+      var routine = user.routine.reduce(function(prev, cur) {
+        return prev + cur.toString();
+      }, '')
+      return {
+        user: user,
+        messageSend: "Your morning routine is " + routine + ", We'll remind you every 3 hours. \
+        If you'd like to change your settings at any time, send'menu'. You are set"
+      }
+    }
   }
-});
+
 // findOrCreateUser(facebookId<string>)
 // This finds or creates a user given its facebook ID
 function findOrCreateUser(facebookId) {
@@ -86,7 +127,6 @@ function findOrCreateUser(facebookId) {
   });
   return promise;
 }
-
 
 // setUpUserIfNotSetup(user<object>, callback <function>)
 // this checks if the user is setUp (have been here before), if not, it should prompt it to set up
@@ -130,7 +170,7 @@ var sendTextMessages = function(resp) {
           json: {
             recipient: {id: sender},
             message: message
-          });
+          }
         }, callback);
       } else {
         resolve(resp)
@@ -140,3 +180,31 @@ var sendTextMessages = function(resp) {
   });
 }
 
+app.post('/webhook/', function(req, res){
+
+  console.log('event.postback.payload', event.postback.payload)
+  console.log('event.message.text', event.message.text)
+  var messageReceived = event.postback.payload || event.message.text;
+  console.log('messageReceived', messageReceived)
+
+  findOrCreateUser(req.body.entry[0].id)
+    .then(function(user) { //takes a user from resolve
+      var handler = stateHandlers[user.state];
+      if (! handler) {
+        throw new Error("Can't handle state: " + user.state);
+      }
+      return handler(user, messageReceived);
+    })
+    .then(function(resp) { //what the function is going to return
+      return sendTextMessages(resp)}) //this needs to be the full response, considering the nest
+    .then(function(user) {
+      return user.save()})
+    .then(function() {
+      res.send('OK');
+    }) //update ,message to user
+    .catch(function(err) {
+      res.status(500).send(err.message);
+    });
+});
+
+module.exports = app;

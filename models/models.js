@@ -13,7 +13,7 @@ var userSchema = mongoose.Schema({
   state: {
     type: Number,
     required: true,
-    default 0
+    default: 0
   },
   facebookId: { //store facebook id here
     type: String,
@@ -24,6 +24,9 @@ var userSchema = mongoose.Schema({
   },
   timeToWakeUP: {
     type: String
+  },
+  toDo:{
+    type: Array,
   }
 });
 userSchema.plugin(findOrCreate);
