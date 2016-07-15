@@ -89,8 +89,8 @@ var sendTextMessages = function(resp) {
           json: {
             recipient: {id: sender},
             message: message
-          });
-        }, callback);
+          }
+        }, callback)
       } else {
         resolve(resp)
       }
