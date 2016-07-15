@@ -24,27 +24,7 @@ var userSchema = mongoose.Schema({
   },
   timeToWakeUP: {
     type: String
-  },
-  routineQuestion:{
-    type: Boolean,
-    default: false
-  },
-  setup:{
-    type: Boolean,
-    default: false
-  },
-  list:{
-    type: Array,
-  },
-  initializeList:{
-    type: Boolean,
-    default: false
-  },
-  morningRoutine:{
-    type: Boolean,
-    default: false
-  },
-
+  }
 });
 userSchema.plugin(findOrCreate);
 module.exports = {User: mongoose.model('User', userSchema)};

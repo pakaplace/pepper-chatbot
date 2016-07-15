@@ -4,6 +4,33 @@ const bodyParser = require('body-parser')
 const request = require('request')
 const app = express()
 
+var state = {
+
+ /* Setup States */
+ 0: "NOT_STARTED",
+ 1: "SETUP_ROUTINE_PROMPTING",
+ 2: "SETUP_ROUTINE_ASKING",
+ 3: "SETUP_ROUTINE_ASKING_TIME",
+ 4: "SETUP_ASKING_TIME",
+
+ /* Daily States */
+ 5: "ROUTINE_NOT_RECEIVED",
+ 6: "ROUTINE_IN_PROGRESS",
+ 7: "TASKLIST_PROMPTING",
+ 8: "TASKLIST_ASKING",
+ 9: "TASKLIST_ASKING_TIME"
+}
+
+var prompts = {
+ "WELCOME": ["Hello there, I am Pam, your personal assistant. Let's set you up",
+             "I'll help you get up in the mornings and fulfill your personal goals"],
+ "SETUP": ["Meditation, pushups, tea? What's one thing you should you be doing every morning?",
+             "For example, you could respond 'Meditation for 10 minutes', or... 'Read for 20 minutes'?"],
+ "DENYSETUP": ["Slow to rise, huh? You can always go back and add a routine later"],
+ "SETUPCOMPLETE": ["You're all set up, from now on I'll remind you daily!", "If you'd like to start now, say something..."],
+ "TASKPROMPT": ["Great, what do you have to do today?", "Separate tasks by comma since I'm dumb"]
+}
+
 //Models
 var User = require('./models/models').User;
 
@@ -26,7 +53,21 @@ app.listen(app.get('port'), function() {
     console.log('running on port', app.get('port'))
 })
 
-
+app.post('/webhook/', function(req, res){
+  var stateHanders = {
+    0: function(user, messageReceived) { //
+      // Greet
+      //return state and message --> message can be an object
+      user.state = 2
+      return {
+        user: user,
+        messageSend: "Hello there, I am Pam, your personal assistant. Let's set you up",
+        "I'll help you get up in the mornings and fulfill your personal goals"
+      }
+    },
+    1: function()
+  }
+});
 // findOrCreateUser(facebookId<string>)
 // This finds or creates a user given its facebook ID
 function findOrCreateUser(facebookId) {
@@ -99,45 +140,3 @@ var sendTextMessages = function(resp) {
   });
 }
 
-module.exports = {
-
- /* Setup States */
- 0: "NOT_STARTED",
- 1: "SETUP_ROUTINE_PROMPTING",
- 2: "SETUP_ROUTINE_ASKING",
- 3: "SETUP_ROUTINE_ASKING_TIME",
- 4: "SETUP_ASKING_TIME",
-
- /* Daily States */
- 5: "ROUTINE_NOT_RECEIVED",
- 6: "ROUTINE_IN_PROGRESS",
- 7: "TASKLIST_PROMPTING",
- 8: "TASKLIST_ASKING",
- 9: "TASKLIST_ASKING_TIME"
-}
-
-[11:21]
-module.exports = {
- "WELCOME": ["Hello there, I am Pam, your personal assistant. Let's set you up",
-             "I'll help you get up in the mornings and fulfill your personal goals"],
- "SETUP": ["Meditation, pushups, tea? What's one thing you should you be doing every morning?",
-             "For example, you could respond 'Meditation for 10 minutes', or... 'Read for 20 minutes'?"],
- "DENYSETUP": ["Slow to rise, huh? You can always go back and add a routine later"],
- "SETUPCOMPLETE": ["You're all set up, from now on I'll remind you daily!", "If you'd like to start now, say something..."],
- "TASKPROMPT": ["Great, what do you have to do today?", "Separate tasks by comma since I'm dumb"]
-}
-
-app.post('/webhook/', function(req, res){
-  var stateHanders = {
-    0: function(user, messageReceived) {
-      // Greet
-      //return state and message --> message can be an object
-      user.state = 2
-      return {
-        user: user,
-        messageSend: "Hello there, I am Pam, your personal assistant. Let's set you up",
-        "I'll help you get up in the mornings and fulfill your personal goals"
-      }
-    },
-    1: function()
-  }
