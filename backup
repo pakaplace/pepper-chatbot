@@ -3,7 +3,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const request = require('request')
 const app = express()
-const TOKEN = process.env.FB_TOKEN
+const token = "EAACGElIklxMBAGeo6OyZBOOPCudxZCun6dF7noz5P3HixXIzeZClJNDkzQLAFZCyl61Thn98jXzuNo6bE85ZBaxmK5bBmutKFR9O9mLuFJl5h6NHl55L1EmslH6u53IbKtLYTqj2FPmIojrv2wpJ0odaS7ZCh5RUY0XXGymp3qxQZDZD"
 
 app.set('port', (process.env.PORT)|| 3000)
 app.use(bodyParser.urlencoded({extended: false}))
@@ -141,21 +141,21 @@ function findOrCreateUser(facebookId) {
 // setUpUserIfNotSetup(user<object>, callback <function>)
 // this checks if the user is setUp (have been here before), if not, it should prompt it to set up
 
-// function setUpUserIfNotSetup(user, callback) {
-//   if (! user.routineQuestion) { //check if the user is set up
-//     return sendTextMessages(user.facebookId, //go back to set up
-//       ["Hello there, I am Pam, your personal assistant. Let's set you up",
-//       "I'll help you get up in the mornings and fulfill your personal goals"],
-//       function() {
-//         user.routineQuestion = true;
-//         user.save(function(err, user) {
-//           console.log('error when saving user in setup', err);
-//           callback(user);
-//         })
-//       });
-//   }
-//   callback(user);
-// }
+function setUpUserIfNotSetup(user, callback) {
+  if (! user.routineQuestion) { //check if the user is set up
+    return sendTextMessages(user.facebookId, //go back to set up
+      ["Hello there, I am Pam, your personal assistant. Let's set you up",
+      "I'll help you get up in the mornings and fulfill your personal goals"],
+      function() {
+        user.routineQuestion = true;
+        user.save(function(err, user) {
+          console.log('error when saving user in setup', err);
+          callback(user);
+        })
+      });
+  }
+  callback(user);
+}
 
 
 
@@ -173,16 +173,13 @@ var sendTextMessages = function(resp) {
       } else if (resp.messageSend.length) {
         var message = resp.messageSend[0];
         resp.message = resp.messageSend.slice(1);
-        console.log("[resp]", resp);
         request({
           url: 'https://graph.facebook.com/v2.6/me/messages',
-          qs: {access_token: TOKEN},
+          qs: {access_token: token},
           method: 'POST',
           json: {
-            recipient: {id: resp.user.facebookId},
-            message: {
-              text: message
-            }
+            recipient: {id: sender},
+            message: message
           }
         }, callback);
       } else {
@@ -194,18 +191,19 @@ var sendTextMessages = function(resp) {
 }
 
 app.post('/webhook/', function(req, res){
+  console.log('posttttt', req.body.entry[0])
   var event = req.body.entry[0].messaging[0];
-  // console.log(req.body.test)
   var messageReceived;
+  // console.log('event.postback.payload', event.postback.payload)
+  console.log('event.message.text', event.message.text)
 
   if (event.postback) {
     messageReceived = event.postback.payload
   } messageReceived = event.message.text;
 
-  console.log('facebook id', req.body.entry[0].messaging[0].sender.id)
+  console.log('messageReceived', messageReceived)
 
-  // findOrCreateUser(req.body.entry[0].user.id)
-  findOrCreateUser(req.body.entry[0].messaging[0].sender.id)
+  findOrCreateUser(req.body.entry[0].id)
     .then(function(user) { //takes a user from resolve
       console.log("[user]", user);
       var handler = stateHandlers[user.state];
@@ -221,7 +219,7 @@ app.post('/webhook/', function(req, res){
       console.log("[user]", user);
       return user.save()})
     .then(function() {
-      // console.log("[sent] response");
+      console.log("[sent] response");
       res.send('OK');
     }) //update ,message to user
     .catch(function(err) {
