@@ -171,7 +171,7 @@ var sendTextMessages = function(resp) {
       } else if (response && response.body && response.body.error) {
         reject(response.body.error);
       } else if (resp.messageSend.length) {
-        var message = resp.messageSend[0];
+        var messageSend = resp.messageSend[0];
         resp.message = resp.messageSend.slice(1);
         console.log("[resp]", resp);
         request({
