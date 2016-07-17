@@ -172,7 +172,7 @@ var sendTextMessages = function(resp) {
         reject(response.body.error);
       } else if (resp.messageSend.length) {
         var message = resp.messageSend[0];
-        resp.message = resp.messageSend.slice(1);
+        resp.messageSend = resp.messageSend.slice(1);
         console.log("[resp]", resp);
         console.log("RESP USER FACEBOOKID===",resp.user.facebookId);
         request({
@@ -198,6 +198,21 @@ app.post('/webhook/', function(req, res){
   var event = req.body.entry[0].messaging[0];
   // console.log(req.body.test)
   var messageReceived;
+  console.log('eventtttttttttttttt', event)
+  console.log('event.message', event.message);
+  var messageId = event.delivery.mids[0];
+  request({
+    url: 'https://graph.facebook.com/v2.6/' + messageId,
+    qs: {access_token: TOKEN},
+    method: 'GET',
+    json: {
+      recipient: {id: resp.user.facebookId},
+      message: {
+        text: message
+      }
+    }
+  }, callback);
+
 
   console.log("EVENT MESSAGE", event.message)
   if (event.postback) {
@@ -217,11 +232,14 @@ app.post('/webhook/', function(req, res){
       return handler(user, messageReceived);
     })
     .then(function(resp) { //what the function is going to return
-      console.log("[response]", resp);
+      // console.log("[response]", resp);
       return sendTextMessages(resp)}) //this needs to be the full response, considering the nest
     .then(function(user) {
-      console.log("[user]", user);
-      return user.save()})
+      // console.log("[user]", user);
+      User.findById(user._id)
+      .then(function(resp) {
+        return user.save()})
+      })
     .then(function() {
       // console.log("[sent] response");
       res.send('OK');
