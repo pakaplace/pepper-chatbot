@@ -176,7 +176,7 @@ var sendTextMessages = function(resp) {
         console.log("[resp]", resp);
         request({
           url: 'https://graph.facebook.com/v2.6/me/messages',
-          qs: {access_token: TOKEN},
+          qs: {access_token: 'EAACGElIklxMBAI7aBgXKsu1W2tzrkI3OkQv2hNtZA9BTZByjQMB2KbCVZAj7Cp6eETZB5ggguQZCN24oNmpZB5ZAz9usFjc2nFtfTdJja5CSihTcVwR2tZBcSdaY0m8DiljGwBYX1KXdN4ZC310nOCcGdj0mYwTyku7gxCfRbinWrgQZDZD'},
           method: 'POST',
           json: {
             recipient: {id: resp.user.facebookId},
@@ -193,7 +193,7 @@ var sendTextMessages = function(resp) {
   });
 }
 
-app.post('/webhook', function(req, res){
+app.post('/webhook/', function(req, res){
   var event = req.body.entry[0].messaging[0];
   var messageReceived;
   console.log('eventtttttttttttttt', event)
