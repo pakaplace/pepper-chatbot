@@ -20,7 +20,7 @@ var userSchema = mongoose.Schema({
     required: true
   },
   routine:{
-      name: String
+    type: Array
   },
   timeToWakeUP: {
     type: String
