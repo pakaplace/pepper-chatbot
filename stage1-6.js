@@ -32,24 +32,7 @@ var prompts = {
              "I'll help you get up in the mornings and fulfill your personal goals"],
  "SETUP": ["Meditation, pushups, tea? What's one thing you should you be doing every morning?",
              "For example, you could respond 'Meditation for 10 minutes', or... 'Read for 20 minutes'?"],
- "MOREROUTINE": {
-     "attachment": {
-         "type": "template",
-         "payload": {
-             "template_type": "button",
-             "text": 'Would you like to add another morning routine?',
-             "buttons": [{
-                   "type": "postback",
-                   "payload": 'yes',
-                   "title": 'yes'
-               }, {
-                   "type": "postback",
-                   "payload": 'no',
-                   "title": 'no'
-               }]
-         }
-     }
- },
+ "MOREROUTINE": ['Would you like to add another morning routine?'],
  "CITY": ['What city do you live in?'],
  'TIMETOWAKEUP':['What time to you want me to wake up?'],
  'FINISHEDSETUP': ["Your routine is X, We'll remind every X hours. If you'd like to change your settings at any time, send'menu'. You are set"],
@@ -197,48 +180,6 @@ var sendTextMessages = function(resp) {
   });
 }
 
-function sendButton(resp) {
-  return new Promise(function(resolve, reject) {
-      var messageData = resp.messageSend;
-        request({
-          url: 'https://graph.facebook.com/v2.6/me/messages',
-          qs: {access_token: TOKEN},
-          method: 'POST',
-          json: {
-            recipient: {id: resp.user.facebookId},
-            message: messageData
-          }
-        }, function(error, response, body) {
-            if (error) {
-                console.log('Error sending messages: ', error)
-            } else if (response.body.error) {
-                console.log('Error: ', response.body.error)
-            } else {
-              console.log("RESP 2 ================", resp)
-              //handle the callback
-            }
-        })
-      })
-    }
-
-    // request({
-    //     url: 'https://graph.facebook.com/v2.6/me/messages',
-    //     qs: {access_token:token},
-    //     method: 'POST',
-    //     json: {
-    //         recipient: {id:sender},
-    //         message: messageData
-    //     }
-    // }, function(error, response, body) {
-    //     if (error) {
-    //         console.log('Error sending messages: ', error)
-    //     } else if (response.body.error) {
-    //         console.log('Error: ', response.body.error)
-    //     } else {
-    //       if (callback) callback();
-    //     }
-    // })
-// }
 
 app.post('/webhook/', function(req, res){
   var event = req.body.entry[0].messaging[0];
@@ -275,28 +216,24 @@ app.post('/webhook/', function(req, res){
       if (! handler) {
         throw new Error("Can't handle state: " + user.state);
       }
-      console.log("^^^^^^^^^" + handler(user, messageReceived));
+      console.log("^^^^^^^^^"+handler(user, messageReceived));
       return handler(user, messageReceived);
     })
     .then(function(resp) { //what the function is going to return
       console.log("[response]", resp);
-
-      if (resp.user.state === 2) {
-        return sendButton(resp)
-      }
       return sendTextMessages(resp)}) //this needs to be the full response, considering the nest
-    // .then(function(resp) {
-    //   console.log("[user yayyyyyyyyyyyyyy]", resp);
-    //   // console.log("HEY HO HEY",User.findById(user._id))
-    //   User.findById(user._id)
-    //   //   , function(err, user) {
-    //   //   return user.save();
-    //   // })
-    //   .then(function(user) {
-    //     console.log("USER.save")
-    //     console.log(user)
-    //     return user.save()})
-    //   })
+    .then(function(resp) {
+      console.log("[user yayyyyyyyyyyyyyy]", resp);
+      // console.log("HEY HO HEY",User.findById(user._id))
+      User.findById(user._id)
+      //   , function(err, user) {
+      //   return user.save();
+      // })
+      .then(function(user) {
+        console.log("USER.save")
+        console.log(user)
+        return user.save()})
+      })
     .then(function() {
       // console.log("[sent] response");
       res.send('OK');
