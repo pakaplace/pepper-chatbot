@@ -171,9 +171,10 @@ var sendTextMessages = function(resp) {
       } else if (response && response.body && response.body.error) {
         reject(response.body.error);
       } else if (resp.messageSend.length) {
-        var messageSend = resp.messageSend[0];
+        var message = resp.messageSend[0];
         resp.message = resp.messageSend.slice(1);
         console.log("[resp]", resp);
+        console.log("RESP USER FACEBOOKID===",resp.user.facebookId);
         request({
           url: 'https://graph.facebook.com/v2.6/me/messages',
           qs: {access_token: TOKEN},
@@ -198,7 +199,7 @@ app.post('/webhook/', function(req, res){
   // console.log(req.body.test)
   var messageReceived;
 
-  console.log("EVENT MESSAGE", event.messageid)
+  console.log("EVENT MESSAGE", event.message)
   if (event.postback) {
     messageReceived = event.postback.payload
   } messageReceived = event.message.text;
