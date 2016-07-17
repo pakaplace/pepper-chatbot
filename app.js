@@ -193,24 +193,25 @@ var sendTextMessages = function(resp) {
   });
 }
 
-app.post('/webhook/', function(req, res){
+app.post('/webhook', function(req, res){
   var event = req.body.entry[0].messaging[0];
-  // console.log(req.body.test)
   var messageReceived;
   console.log('eventtttttttttttttt', event)
   console.log('event.message', event.message);
-  var messageId = event.delivery.mids[0];
-  request({
-    url: 'https://graph.facebook.com/v2.6/' + messageId,
-    qs: {access_token: TOKEN},
-    method: 'GET',
-    json: {
-      recipient: {id: resp.user.facebookId},
-      message: {
-        text: message
-      }
-    }
-  }, callback);
+
+  // var messageId = event.delivery.mid[0];
+  // ?? url: 'https://graph.facebook.com/v2.6/' + messageId, are we using messageId here?
+  // request({
+  //   url: 'https://graph.facebook.com/v2.6/messages',
+  //   qs: {access_token: TOKEN},
+  //   method: 'GET',
+  //   json: {
+  //     recipient: {id: req.user.facebookId},
+  //     message: {
+  //       text: message
+  //     }
+  //   }
+  // }, callback);
 
 
   if (event.postback) {
@@ -222,15 +223,16 @@ app.post('/webhook/', function(req, res){
   // findOrCreateUser(req.body.entry[0].user.id)
   findOrCreateUser(req.body.entry[0].messaging[0].sender.id)
     .then(function(user) { //takes a user from resolve
-      console.log("[user]", user);
+      console.log("[user-------]", user);
       var handler = stateHandlers[user.state];
       if (! handler) {
         throw new Error("Can't handle state: " + user.state);
       }
+      console.log("^^^^^^^^^"+handler(user, messageReceived));
       return handler(user, messageReceived);
     })
     .then(function(resp) { //what the function is going to return
-      // console.log("[response]", resp);
+      console.log("[response]", resp);
       return sendTextMessages(resp)}) //this needs to be the full response, considering the nest
     .then(function(user) {
       // console.log("[user]", user);
