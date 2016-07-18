@@ -6,7 +6,8 @@ const app = express()
 const TOKEN = process.env.FB_TOKEN
 
 
-app.set('port', (process.env.PORT)|| 3000)
+app.set('port', 3000)
+// localhost: 8080
 app.use(bodyParser.urlencoded({extended: false}))
 
 app.use(bodyParser.json())
@@ -48,6 +49,7 @@ var User = require('./models/models').User;
 
 //prompts are all the response PAM would send back
 var prompts = {
+  //SETUP
  "WELCOME": ["Hello there, I am Pam, your personal assistant. Let's set you up",
              "I'll help you get up in the mornings and fulfill your personal goals"],
  "SETUP": ["Meditation, pushups, tea? What's one thing you should you be doing every morning?",
@@ -70,12 +72,55 @@ var prompts = {
          }
      }
  },
- "CITY": ['What city do you live in?'],
- 'TIMETOWAKEUP':['What time to you want me to wake up?'],
- 'FINISHEDSETUP': ["Your routine is X, We'll remind every X hours. If you'd like to change your settings at any time, send'menu'. You are set"],
- "DENYSETUP": ["Slow to rise, huh? You can always go back and add a routine later"],
- "SETUPCOMPLETE": ["You're all set up, from now on I'll remind you daily!", "If you'd like to start now, say something..."],
- "TASKPROMPT": ["Great, what do you have to do today?", "Separate tasks by comma since I'm dumb"]
+  "CITY": ['What city do you live in?'],
+  'TIMETOWAKEUP':['What time to you want me to wake up?'],
+  'FINISHEDSETUP': ["Your routine is X, We'll remind every X hours. If you'd like to change your settings at any time, send'menu'. You are set"],
+  "DENYSETUP": ["Slow to rise, huh? You can always go back and add a routine later"],
+  "SETUPCOMPLETE": ["You're all set up, from now on I'll remind you daily!", "If you'd like to start now, say something..."],
+  "TASKPROMPT": ["Great, what do you have to do today?", "Separate tasks by comma since I'm dumb"],
+
+  //DAILY
+  'START_MORNING': ["Good morning! Ready to save the world? Let this adorable video wake you up!"],
+  'ASK_MORNING_ROUTINE': {
+      "attachment": {
+          "type": "template",
+          "payload": {
+              "template_type": "button",
+              "text": 'Ready to start your morning routine?',
+              "buttons": [{
+                    "type": "postback",
+                    "payload": 'yes',
+                    "title": 'yes'
+                }, {
+                    "type": "postback",
+                    "payload": 'no',
+                    "title": 'no'
+                }]
+          }
+      }
+  },
+  // IF YES, START TIMER
+  'START_MORNING_ROUTINE': ['Which one would you like to start?'], // + button this one will get asked again and again
+  'DONE_DAILY_ROUINE': ['Congrats on finishing your morning routine! Such a good way to start the day!'],
+  // IF NO, START WORKING
+  'START_WORKING': {
+      "attachment": {
+          "type": "template",
+          "payload": {
+              "template_type": "button",
+              "text": 'Ready to start working?',
+              "buttons": [{
+                    "type": "postback",
+                    "payload": 'yes',
+                    "title": 'yes'
+                }, {
+                    "type": "postback",
+                    "payload": 'no',
+                    "title": 'no'
+                }]
+          }
+      }
+  },
 }
 
 app.get('/', function(req, res) {
@@ -126,6 +171,7 @@ var stateHandlers = {
       console.log('ethan debug -----', messageReceived);
       //whenever state is set to 2, directly go back to 1
       user.state = 1
+      user.routine.push(messageReceived)
       return {
         user: user,
         messageSend: prompts.MOREROUTINE
@@ -134,6 +180,7 @@ var stateHandlers = {
   //SETUP_TIMETOWAKEUP_ASKING
     4: function(user, messageReceived) {
       user.state = 5
+      user.city = messageReceived
       return {
         user: user,
         messageSend: prompts.TIMETOWAKEUP
@@ -142,17 +189,164 @@ var stateHandlers = {
   //SETUP_READY
     5: function(user, messageReceived) {
       user.state = 6
+      user.timeToWakeUP = messageReceived
       //reduce all the routines to a string
       var routine = user.routine.reduce(function(prev, cur) {
         return prev +', '+ cur.toString();
       }, '')
+      var routineWithoutComma = routine.substring(1);
       return {
         user: user,
-        messageSend: ["Your morning routine is " + routine + ". We'll remind you every 3 hours.",
+        messageSend: ["Your morning routine is " + routineWithoutComma + ". We'll remind you every 3 hours.",
         "If you'd like to change your settings at any time, send 'menu'. You are set"]
       }
     },
+  //START_MORNING
+    6: function(user, messageReceived) {
+      user.state = 7
+      return {
+        user: user,
+        messageSend: prompts.START_MORNING
+      }
+    }, //send video here
+  //ASK_DAILY_ROUTINE
+    7: function(user, messageReceived) {
+      user.state = 8
+      return {
+        user: user,
+        messageSend: prompts.ASK_MORNING_ROUTINE
+      }
+    },
+  // START_DAILY_ROUTINE
+    8: function(user, messageReceived) {
+    //from state 7 asking if you want to start morning routine
+      if (messageReceived === 'no') {
+        user.state = 10 //start working
+      }
+    //if the user has finished morning routine
+      if (!user.routine.length) {
+        user.state = 9
+      }
+    if (messageReceived === 'start'){
+        //start the timer
+    }
+    if (messageReceived === 'finish'){
+        //delete the event and send the new event list maybe
+    }
+      return {
+        user: user,
+        messageSend: prompts.START_MORNING_ROUTINE
+      }
+    }, //ask again until finished
+  // DONE_DAILY_ROUINE
+    9: function(user, messageReceived) {
+      user.state = 10
+      return {
+        user: user,
+        messageSend: prompts.DONE_DAILY_ROUINE
+      }
+    }, // give a reward
+  // START_WORKING
+    10: function(user, messageReceived) {
+      user.state = 11
+      return {
+        user: user,
+        messageSend: prompts.START_WORKING
+      }
+    },
+
+    // NOT_WORKING
+    // START_WORKING
+    // ASK_FOR_TASKS
+    // DONE_TASKS
+    // ASK_REFLECTION_QUESTIONS
+    // DONE_FOR_THE_DAY
 }
+
+// ETHAN DEBUG
+
+// app.post('/webhook', (req, res) => {
+//   res.send('ethan debug complete :-)')
+// })
+
+app.post('/webhook/', function(req, res){
+  var event = req.body.entry[0].messaging[0];
+  var messageReceived;
+
+  if (event.postback) {
+    messageReceived = event.postback.payload
+  } else {
+    messageReceived = event.message.text;
+  }
+
+  findOrCreateUser(req.body.entry[0].messaging[0].sender.id)
+    .then(function(user) {
+
+      console.log(messageReceived)
+      if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_WAKEUP") {
+        return sendTextMessages({
+          user,
+          messageSend: ["Your current wake up time is " + user.timeToWakeUP + ". What time do you want it to be?"]})
+      }
+       else if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_CITY") {
+        return sendTextMessages({
+          user,
+          messageSend: ["Your current city is " + user.city + ". Which one do you want it to be?"]})
+      }
+      else if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_ROUTINES") {
+        return sendTextMessages({
+          user,
+          messageSend: ["ohai"]})
+      }
+      else if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_MESSAGE") {
+        return sendTextMessages({
+          user,
+          messageSend: ["ohai"]})
+      }
+      else if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_REFLECTION") {
+        return sendTextMessages({
+          user,
+          messageSend: ["ohai"]})
+      }
+      //handler is a function that returns user and messageSend, according to the user's state
+      var handler = stateHandlers[user.state];
+
+      //currentState is what it is, before calling handler to set to the next state
+      var currentState = user.state;
+
+      // console.log("Moving from state " + currentState + " with " + messageReceived);
+
+      //call handle to set the state to the next
+      var handle = handler(user, messageReceived);
+      // console.log("Got to state " + handle.user.state)
+
+      if (! handler) {
+        throw new Error("Can't handle state: " + user.state);
+      }
+      //changed to 2 after we incremented the state
+      if (currentState === 2 || currentState === 7) {
+        // console.log("attempting a sendButton with ", handle.messageSend);
+        return sendButton(handle)
+      //send a video
+      } else if (currentState === 6 || currentState === 9) {
+      //the video here will be randomly generated later
+        return sendVideo(handle, 'http://clips.vorwaerts-gmbh.de/VfE_html5.mp4', handle.messageSend)
+      } else if (currentState === 8) {
+        return sendMultiButton(handle, user.routine, handle.messageSend)
+      }
+      return sendTextMessages(handle)
+    })
+    .then(function(resp) {
+      return resp.user.save();
+    })
+    .then(function(user) {
+      res.send('OKIE DOKIE');
+    })
+    .catch(function(err) {
+      console.log("[err]", err);
+      res.status(200).send(err.message);
+    });
+});
 
 // findOrCreateUser(facebookId<string>)
 // This finds or creates a user given its facebook ID
@@ -206,75 +400,145 @@ var sendTextMessages = function(resp) {
 //sendButton handles messages that contains a button
 function sendButton(resp) {
   return new Promise(function(resolve, reject) {
-      var messageData = resp.messageSend;
-        request({
-          url: 'https://graph.facebook.com/v2.6/me/messages',
-          qs: {access_token: TOKEN},
-          method: 'POST',
-          json: {
-            recipient: {id: resp.user.facebookId},
-            message: messageData
+    var messageData = resp.messageSend;
+    request({
+      url: 'https://graph.facebook.com/v2.6/me/messages',
+      qs: {access_token: TOKEN},
+      method: 'POST',
+      json: {
+        recipient: {id: resp.user.facebookId},
+        message: messageData
+      }
+    }, function(error, response, body) {
+        if (error) {
+            console.log('Error sending messages: ', error)
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error)
+        } else {
+        //this is the callback and pass down resp
+          resolve(resp)
+        }
+    })
+  })
+}
+
+//sendVideo takes resp, url, text to send a video
+function sendVideo(resp, url, text) {
+  return new Promise(function(resolve, reject) {
+    var messageData = {
+      "attachment": {
+          "type": "video",
+          "payload": {
+            "url": url
           }
-        }, function(error, response, body) {
-            if (error) {
-                console.log('Error sending messages: ', error)
-            } else if (response.body.error) {
-                console.log('Error: ', response.body.error)
-            } else {
-            //this is the callback and pass down resp
-              resolve(resp)
+      }
+    }
+    request({
+      url: 'https://graph.facebook.com/v2.6/me/messages',
+      qs: {access_token: TOKEN},
+      method: 'POST',
+      json: {
+        recipient: {id: resp.user.facebookId},
+        message: messageData
+      }
+    }, function(error, response, body) {
+        if (error) {
+            console.log('Error sending messages: ', error)
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error)
+        } else {
+        //this is the callback and pass down resp
+          resolve(resp)
+        }
+    })
+  })
+}
+
+//sendVideo takes resp, url, text to send a video
+function sendVideo(resp, url, text) {
+  return sendTextMessages(resp)
+  .then(function(resp) {
+    return new Promise(function(resolve, reject) {
+      var messageData = {
+        "attachment": {
+            "type": "video",
+            "payload": {
+              "url": url
             }
-        })
+        }
+      }
+      request({
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token: TOKEN},
+        method: 'POST',
+        json: {
+          recipient: {id: resp.user.facebookId},
+          message: messageData
+        }
+      }, function(error, response, body) {
+          if (error) {
+              console.log('Error sending messages: ', error)
+          } else if (response.body.error) {
+              console.log('Error: ', response.body.error)
+          } else {
+          //this is the callback and pass down resp
+            resolve(resp)
+          }
       })
+    })
+  })
+}
+
+//sendMultiButton creates a message with multiple buttons of the tasks/routines in the array
+function sendMultiButton(resp, arr, text) {
+  return new Promise(function(resolve, reject) {
+    var messageData = {
+      "attachment": {
+        "type": "template",
+        "payload": {
+            "template_type": "generic",
+            // "text": text,
+            "elements": []
+        }
+      }
     }
 
-// ETHAN DEBUG
-
-// app.post('/webhook', (req, res) => {
-//   res.send('ethan debug complete :-)')
-// })
-
-app.post('/webhook/', function(req, res){
-  var event = req.body.entry[0].messaging[0];
-  var messageReceived;
-
-  if (event.postback) {
-    messageReceived = event.postback.payload
-  } else {
-    messageReceived = event.message.text;
-  }
-
-  findOrCreateUser(req.body.entry[0].messaging[0].sender.id)
-    .then(function(user) {
-      //handler is a function that returns user and messageSend, according to the user's state
-      var handler = stateHandlers[user.state];
-      //currentState is what it is, before calling handler to set to the next state
-      var currentState = user.state;
-      // console.log("Moving from state " + currentState + " with " + messageReceived);
-      //call handle to set the state to the next
-      var handle = handler(user, messageReceived);
-      // console.log("Got to state " + handle.user.state)
-
-      if (! handler) {
-        throw new Error("Can't handle state: " + user.state);
+    arr.forEach(function(element) {
+      var el = {
+        "title": element,
+        // "subtitle": "Element #1 of an hscroll",
+        "image_url": "http://messengerdemo.parseapp.com/img/rift.png",
+        "buttons": [{
+          'type': 'postback',
+          'payload': 'start',
+          'title': 'start'
+        },{
+          'type': 'postback',
+          'payload': 'finish',
+          'title': 'finish'
+        }]
       }
-      //changed to 2 after we incremented the state
-      if (currentState === 2) {
-        // console.log("attempting a sendButton with ", handle.messageSend);
-        return sendButton(handle)
-      }
-      return sendTextMessages(handle)
+      messageData.attachment.payload.buttons.push(el)
     })
-    .then(function(resp) {
-      return resp.user.save();
+    request({
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token:TOKEN},
+        method: 'POST',
+        json: {
+            recipient: {id: resp.user.facebookId},
+            message: messageData,
+        }
+      }, function(error, response, body) {
+        if (error) {
+            console.log('Error sending messages: ', error)
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error)
+        } else {
+          resolve(resp)
+        }
     })
-    .then(function(user) {
-      res.send('OKIE DOKIE');
-    })
-    .catch(function(err) {
-      console.log("[err]", err);
-      res.status(200).send(err.message);
-    });
-});
+  })
+}
+
 
 module.exports = app;
