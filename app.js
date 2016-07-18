@@ -5,28 +5,48 @@ const request = require('request')
 const app = express()
 const TOKEN = process.env.FB_TOKEN
 
+
 app.set('port', (process.env.PORT)|| 3000)
 app.use(bodyParser.urlencoded({extended: false}))
 
 app.use(bodyParser.json())
 
-var state = {
+//Models
+var User = require('./models/models').User;
 
- /* Setup States */
- 0: "NOT_STARTED",
- 1: "SETUP_ROUTINE_PROMPTING",
- 2: "SETUP_ROUTINE_ASKING",
- 3: "SETUP_ROUTINE_ASKING_TIME",
- 4: "SETUP_ASKING_TIME",
+// var state = {
 
- /* Daily States */
- 5: "ROUTINE_NOT_RECEIVED",
- 6: "ROUTINE_IN_PROGRESS",
- 7: "TASKLIST_PROMPTING",
- 8: "TASKLIST_ASKING",
- 9: "TASKLIST_ASKING_TIME"
-}
+// /* Setup States */
+// 0: "NOT_STARTED",
+// 1: "SETUP_ROUTINE_PROMPTING",
+// 2: "SETUP_ROUTINE_ASKING_AND_TIME",
+// 3: "SETUP_ASKING_CITY",
+// 4: "SETUP_ASKING_WAKEUPTIME",
+// 5: "SETUP_READY"
 
+// /* Daily States */
+// 5: "ROUTINE_NOT_RECEIVED",
+// 6: "ROUTINE_IN_PROGRESS",
+// 7: "TASKLIST_PROMPTING",
+// 8: "TASKLIST_ASKING",
+// 9: "TASKLIST_ASKING_TIME"
+// }
+
+// DAILY_GREETING_AND_VIDEO (maybe break this up?)
+// ASK_DAILY_ROUTINE
+// START_DAILY_ROUTINE (ask again until finished)
+// DONE_DAILY_ROUINE (and then a reward)
+// START_WORKING
+// NOT_WORKING
+// ASK_FOR_TASKS
+// DONE_TASKS
+// ASK_REFLECTION_QUESTIONS
+// DONE_FOR_THE_DAY
+
+
+
+
+//prompts are all the response PAM would send back
 var prompts = {
  "WELCOME": ["Hello there, I am Pam, your personal assistant. Let's set you up",
              "I'll help you get up in the mornings and fulfill your personal goals"],
@@ -58,90 +78,81 @@ var prompts = {
  "TASKPROMPT": ["Great, what do you have to do today?", "Separate tasks by comma since I'm dumb"]
 }
 
-//Models
-var User = require('./models/models').User;
-
 app.get('/', function(req, res) {
-  res.send('I am a chatbot')
-})
+  res.send('I am Pam !');
+  console.log('asdf')
+});
 
 //get user's messages and verify the token. This is from the website
 app.get('/webhook/', function(req, res) {
-  // console.log('getttt', req.query)
   if (req.query['hub.verify_token'] === 'my_voice_is_mypassword_verify_me') {
-        return res.send(req.query['hub.challenge'])
+        return res.send(req.query['hub.challenge']);
     }
-    return res.send('Error, wrong token')
-})
+    return res.send('Error, wrong token');
+});
 
-
+//stateHandlers set user's state and return the user and the messageSend
 var stateHandlers = {
-    0: function(user, messageReceived) { //
-      // Greet
-      //return state and message --> message can be an object
+  //NOT_STARTED
+    0: function(user, messageReceived) {
+      //set state to 1, ask for routine
       user.state = 1
-      user.save();
       return {
         user: user,
         messageSend: prompts.WELCOME
       }
     },
+  // SETUP_ROUTINE_PROMPTING
     1: function(user, messageReceived) { //
-      // Greet
-      //return state and message --> message can be an object
+    //if the user says 'no' to add another routine, set state to 4 to ask for city
+      if(messageReceived === 'no'){
+        user.state = 4
+        //deleted state 3 that ask for city and put it here
+        //SETUP_CITY_ASKING
+        return {
+          user,
+          messageSend: prompts.CITY
+        }
+      }
+      //else proceed to 2, ask to add another routine
       user.state = 2
-      user.save();
       return {
         user: user,
         messageSend: prompts.SETUP
       }
     },
-    2: function(user, messageReceived) { //
-      // Greet
-      //return state and message --> message can be an object
-      user.state = 3
-      user.save();
+  //SETUP_ROUTINE_ASKING & TIME
+    2: function(user, messageReceived) {
+      console.log('ethan debug -----', messageReceived);
+      //whenever state is set to 2, directly go back to 1
+      user.state = 1
       return {
         user: user,
         messageSend: prompts.MOREROUTINE
       }
     },
-    3: function(user, messageReceived) { //
-      // Greet
-      //return state and message --> message can be an object
-      user.state = 4
-      user.save();
-      return {
-        user: user,
-        messageSend: prompts.CITY
-      }
-    },
-    4: function(user, messageReceived) { //
-      // Greet
-      //return state and message --> message can be an object
+  //SETUP_TIMETOWAKEUP_ASKING
+    4: function(user, messageReceived) {
       user.state = 5
-      user.save();
       return {
         user: user,
         messageSend: prompts.TIMETOWAKEUP
       }
     },
-    5: function(user, messageReceived) { //
+  //SETUP_READY
+    5: function(user, messageReceived) {
       user.state = 6
-
+      //reduce all the routines to a string
       var routine = user.routine.reduce(function(prev, cur) {
         return prev +', '+ cur.toString();
       }, '')
-      routine = routine.slice(2)
-      user.save();
       return {
         user: user,
-        messageSend: ["Your morning routine is " + routine + ", We'll remind you every 3 hours.",
-        "If you'd like to change your settings at any time, send'menu'. You are set"]
+        messageSend: ["Your morning routine is " + routine + ". We'll remind you every 3 hours.",
+        "If you'd like to change your settings at any time, send 'menu'. You are set"]
       }
     },
-
-  }
+}
 
 // findOrCreateUser(facebookId<string>)
 // This finds or creates a user given its facebook ID
@@ -162,11 +173,7 @@ function findOrCreateUser(facebookId) {
   return promise;
 }
 
-//findOrCreate -if the user has been here
-
-//hasSetUp -of the user has finished set up
-
-
+//setTextMessages sends messages in an array
 var sendTextMessages = function(resp) {
   return new Promise(function(resolve, reject) {
     function callback(error, response) {
@@ -177,7 +184,6 @@ var sendTextMessages = function(resp) {
       } else if (resp.messageSend.length) {
         var message = resp.messageSend[0];
         resp.messageSend = resp.messageSend.slice(1);
-        console.log("[resp]", resp);
         request({
           url: 'https://graph.facebook.com/v2.6/me/messages',
           qs: {access_token: TOKEN},
@@ -190,13 +196,14 @@ var sendTextMessages = function(resp) {
           }
         }, callback);
       } else {
-        resolve(resp)
+        resolve(resp);
       }
     }
     callback(); //first time calling the callback
   });
 }
 
+//sendButton handles messages that contains a button
 function sendButton(resp) {
   return new Promise(function(resolve, reject) {
       var messageData = resp.messageSend;
@@ -214,96 +221,59 @@ function sendButton(resp) {
             } else if (response.body.error) {
                 console.log('Error: ', response.body.error)
             } else {
-              console.log("RESP 2 ================", resp)
-              //handle the callback
+            //this is the callback and pass down resp
+              resolve(resp)
             }
         })
       })
     }
 
-    // request({
-    //     url: 'https://graph.facebook.com/v2.6/me/messages',
-    //     qs: {access_token:token},
-    //     method: 'POST',
-    //     json: {
-    //         recipient: {id:sender},
-    //         message: messageData
-    //     }
-    // }, function(error, response, body) {
-    //     if (error) {
-    //         console.log('Error sending messages: ', error)
-    //     } else if (response.body.error) {
-    //         console.log('Error: ', response.body.error)
-    //     } else {
-    //       if (callback) callback();
-    //     }
-    // })
-// }
+// ETHAN DEBUG
+
+// app.post('/webhook', (req, res) => {
+//   res.send('ethan debug complete :-)')
+// })
 
 app.post('/webhook/', function(req, res){
   var event = req.body.entry[0].messaging[0];
   var messageReceived;
-  console.log('eventtttttttttttttt', event)
-  console.log('event.message', event.message);
-
-  // var messageId = event.delivery.mid[0];
-  // ?? url: 'https://graph.facebook.com/v2.6/' + messageId, are we using messageId here?
-  // request({
-  //   url: 'https://graph.facebook.com/v2.6/messages',
-  //   qs: {access_token: TOKEN},
-  //   method: 'GET',
-  //   json: {
-  //     recipient: {id: req.user.facebookId},
-  //     message: {
-  //       text: message
-  //     }
-  //   }
-  // }, callback);
-
 
   if (event.postback) {
     messageReceived = event.postback.payload
-  } messageReceived = event.message.text;
+  } else {
+    messageReceived = event.message.text;
+  }
 
-  console.log('facebook id', req.body.entry[0].messaging[0].sender.id)
-
-  // findOrCreateUser(req.body.entry[0].user.id)
   findOrCreateUser(req.body.entry[0].messaging[0].sender.id)
-    .then(function(user) { //takes a user from resolve
-      console.log("[user-------]", user);
+    .then(function(user) {
+      //handler is a function that returns user and messageSend, according to the user's state
       var handler = stateHandlers[user.state];
+      //currentState is what it is, before calling handler to set to the next state
+      var currentState = user.state;
+      // console.log("Moving from state " + currentState + " with " + messageReceived);
+      //call handle to set the state to the next
+      var handle = handler(user, messageReceived);
+      // console.log("Got to state " + handle.user.state)
+
       if (! handler) {
         throw new Error("Can't handle state: " + user.state);
       }
-      console.log("^^^^^^^^^" + handler(user, messageReceived));
-      return handler(user, messageReceived);
-    })
-    .then(function(resp) { //what the function is going to return
-      console.log("[response]", resp);
-
-      if (resp.user.state === 2) {
-        return sendButton(resp)
+      //changed to 2 after we incremented the state
+      if (currentState === 2) {
+        // console.log("attempting a sendButton with ", handle.messageSend);
+        return sendButton(handle)
       }
-      return sendTextMessages(resp)}) //this needs to be the full response, considering the nest
-    // .then(function(resp) {
-    //   console.log("[user yayyyyyyyyyyyyyy]", resp);
-    //   // console.log("HEY HO HEY",User.findById(user._id))
-    //   User.findById(user._id)
-    //   //   , function(err, user) {
-    //   //   return user.save();
-    //   // })
-    //   .then(function(user) {
-    //     console.log("USER.save")
-    //     console.log(user)
-    //     return user.save()})
-    //   })
-    .then(function() {
-      // console.log("[sent] response");
-      res.send('OK');
-    }) //update ,message to user
+      return sendTextMessages(handle)
+    })
+    .then(function(resp) {
+      return resp.user.save();
+    })
+    .then(function(user) {
+      res.send('OKIE DOKIE');
+    })
     .catch(function(err) {
       console.log("[err]", err);
-      res.status(500).send(err.message);
+      res.status(200).send(err.message);
     });
 });
 
