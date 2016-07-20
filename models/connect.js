@@ -1,1 +1,3 @@
-module.exports = "mongodb://mojiashen1:19941124Momo@ds015934.mlab.com:15934/mojiahorizons"
+module.exports = {
+    MONGODB_URI:"mongodb://pam:pam@ds023495.mlab.com:23495/pampam",
+}
