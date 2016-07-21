@@ -7,7 +7,7 @@ const app = express()
 const TOKEN = process.env.FB_TOKEN
 
 
-// app.use(express.static(path.join(__dirname, 'frontpage')));
+app.use(express.static(path.join(__dirname, 'frontpage')));
 
 
 app.set('port', (process.env.PORT)|| 3000)
@@ -97,7 +97,7 @@ var prompts = {
 app.get('/', function(req, res) {
   // res.send('I am Pam !');
   console.log('asdf')
-  res.redirect('/frontpage/index.html')
+  res.redirect('index.html')
 });
 
 //get user's messages and verify the token. This is from the website
