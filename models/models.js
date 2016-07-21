@@ -24,18 +24,25 @@ var userSchema = mongoose.Schema({
     type: String,
     required: true
   },
-  routine:{
-    type: Array
-  },
+  routine:[
+    {
+      routine: String,
+      duration:Number
+    }
+  ],
   routineCopy:{
     type: Array
   },
   city: {
     type: String
   },
-  timeToWakeUP: {
-    type: String
-  },
+  timeToWakeUp: [
+    {
+      time: String,
+      hour: Number,
+      minute:Number
+    }
+  ],
   tasks:{
     type: Array
   },
@@ -53,7 +60,38 @@ var userSchema = mongoose.Schema({
   },
   gender:{
     type:String
-  }
+  },
+  reflection:{
+    "title": {
+        "media": {
+          "url": String,
+          "caption": String,
+          "credit": String
+        },
+        "text": {
+          "headline": String,
+          "text": String
+        }
+    },
+    "events": [
+      {
+        "media": {
+          "url": String,
+          "caption": String,
+          "credit": String
+        },
+        "start_date": {
+          "month": String,
+          "day": String,
+          "year": String
+        },
+        "text": {
+          "headline": String,
+          "text": String
+        }
+      }
+    ]
+    }
 });
 
 userSchema.plugin(findOrCreate);

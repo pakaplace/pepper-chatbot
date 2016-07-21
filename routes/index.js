@@ -6,6 +6,18 @@ var User = require('./models/models').User;
 // need to import sendVideo ????
 var sendVideo = require('../app').sendVideo;
 
+//** WIT REQUIRE **//
+let Wit = null;
+let log = null;
+
+try {
+  Wit = require('../').Wit;
+  log = require('node-wit').log;
+} catch(e){
+  Wit = require('node-wit').Wit
+  log = require('node-wit').log;
+}
+
 /* GET home page. */
 router.get('/sendScheduled', function(req, res, next) {
   User.find(function(err, users) {
@@ -14,13 +26,16 @@ router.get('/sendScheduled', function(req, res, next) {
         message: error
       })
     }
-    //need to compare the time
-    user.forEach
     var date = new Date();
-    if (user.timeToWakeUp.hour === date.getHours() && user.timeToWakeUp.minute <= date.getMinutes()) {
-      user.state = 6
-      sendVideo(handle, 'https://www.dropbox.com/s/p4qo3clfnnyokb7/Tous.mp4?dl=0', handle.messageSend)
-    }
+    var userHours = date.getUTCHours()+user.timezone;
+    //need to compare the time
+    users.forEach(function(user) {
+
+      if (user.timeToWakeUp.hour === userHours && user.timeToWakeUp.minute <= date.getMinutes()) {
+        user.state = 6
+        sendVideo(handle, 'https://www.dropbox.com/s/p4qo3clfnnyokb7/Tous.mp4?dl=0', handle.messageSend)
+      }
+    })
   })
 });
 
