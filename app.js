@@ -1,9 +1,13 @@
 'use strict'
 const express = require('express')
 const bodyParser = require('body-parser')
-const request = require('request')
+const request = require('request');
+const path = require('path')
 const app = express()
 const TOKEN = process.env.FB_TOKEN
+
+
+app.use(express.static(path.join(__dirname, 'frontpage')));
 
 
 app.set('port', (process.env.PORT)|| 3000)
@@ -44,10 +48,9 @@ var User = require('./models/models').User;
 // DONE_FOR_THE_DAY
 
 
-
-
 //prompts are all the response PAM would send back
 var prompts = {
+  //SETUP
  "WELCOME": ["Hello there, I am Pam, your personal assistant. Let's set you up",
              "I'll help you get up in the mornings and fulfill your personal goals"],
  "SETUP": ["Meditation, pushups, tea? What's one thing you should you be doing every morning?",
@@ -75,12 +78,26 @@ var prompts = {
  'FINISHEDSETUP': ["Your routine is X, We'll remind every X hours. If you'd like to change your settings at any time, send'menu'. You are set"],
  "DENYSETUP": ["Slow to rise, huh? You can always go back and add a routine later"],
  "SETUPCOMPLETE": ["You're all set up, from now on I'll remind you daily!", "If you'd like to start now, say something..."],
- "TASKPROMPT": ["Great, what do you have to do today?", "Separate tasks by comma since I'm dumb"]
+ "TASKPROMPT": ["Great, what do you have to do today?", "Separate tasks by comma since I'm dumb"],
+
+ //DAILY
+ 'VIDEO': {
+        "attachment": {
+            "type": "video",
+            "payload": {
+              "url": 'http://clips.vorwaerts-gmbh.de/VfE_html5.mp4'
+            },
+            'text': "Good morning! Ready to save the world? Let this adorable video wake you up!"
+        }
+    },
+
+ 
 }
 
 app.get('/', function(req, res) {
-  res.send('I am Pam !');
+  // res.send('I am Pam !');
   console.log('asdf')
+  res.redirect('/index.html')
 });
 
 //get user's messages and verify the token. This is from the website
@@ -91,12 +108,13 @@ app.get('/webhook/', function(req, res) {
     return res.send('Error, wrong token');
 });
 
-//stateHandlers set user's state and return the user and the messageSend
+//stateHandlers set user's state and return the user and the messageSend 
 var stateHandlers = {
   //NOT_STARTED
-    0: function(user, messageReceived) {
-      //set state to 1, ask for routine
+    0: function(user, messageReceived) { 
+      //set state to 1, ask for routine 
       user.state = 1
+      console.log("USERRR 0", user);
       return {
         user: user,
         messageSend: prompts.WELCOME
@@ -104,10 +122,11 @@ var stateHandlers = {
     },
   // SETUP_ROUTINE_PROMPTING
     1: function(user, messageReceived) { //
-    //if the user says 'no' to add another routine, set state to 4 to ask for city
+    //if the user says 'no' to add another routine, set state to 4 to ask for city 
       if(messageReceived === 'no'){
-        user.state = 4
-        //deleted state 3 that ask for city and put it here
+        user.state = 4 
+        console.log("USERRR 1=4", user);
+        //deleted state 3 that ask for city and put it here 
         //SETUP_CITY_ASKING
         return {
           user,
@@ -116,39 +135,48 @@ var stateHandlers = {
       }
       //else proceed to 2, ask to add another routine
       user.state = 2
+      console.log("USERRR 1=2", user);
       return {
         user: user,
         messageSend: prompts.SETUP
       }
     },
   //SETUP_ROUTINE_ASKING & TIME
-    2: function(user, messageReceived) {
+    2: function(user, messageReceived) { 
       console.log('ethan debug -----', messageReceived);
       //whenever state is set to 2, directly go back to 1
       user.state = 1
+      console.log("USERRR 2", user);
       return {
         user: user,
+        routine: user.routine.push(messageReceived),
         messageSend: prompts.MOREROUTINE
       }
     },
   //SETUP_TIMETOWAKEUP_ASKING
-    4: function(user, messageReceived) {
+    4: function(user, messageReceived) { 
       user.state = 5
+      console.log("USERRR 4", user);
       return {
         user: user,
         messageSend: prompts.TIMETOWAKEUP
       }
     },
   //SETUP_READY
-    5: function(user, messageReceived) {
+    5: function(user, messageReceived) { 
       user.state = 6
+      console.log("USERRR 5", user);
       //reduce all the routines to a string
+      console.log("USER.ROUTINE =====", user.routine);
       var routine = user.routine.reduce(function(prev, cur) {
         return prev +', '+ cur.toString();
       }, '')
+      var routineWithoutComma = routine.substring(1)
+      console.log("ROUTINE =====", routine);
+      console.log("routineWithoutComma =====", routineWithoutComma);
       return {
         user: user,
-        messageSend: ["Your morning routine is " + routine + ". We'll remind you every 3 hours.",
+        messageSend: ["Your morning routine is" + routineWithoutComma + ". We'll remind you every 3 hours.",
         "If you'd like to change your settings at any time, send 'menu'. You are set"]
       }
     },
@@ -173,7 +201,7 @@ function findOrCreateUser(facebookId) {
   return promise;
 }
 
-//setTextMessages sends messages in an array
+//setTextMessages sends messages in an array 
 var sendTextMessages = function(resp) {
   return new Promise(function(resolve, reject) {
     function callback(error, response) {
@@ -237,7 +265,6 @@ function sendButton(resp) {
 app.post('/webhook/', function(req, res){
   var event = req.body.entry[0].messaging[0];
   var messageReceived;
-
   if (event.postback) {
     messageReceived = event.postback.payload
   } else {
@@ -245,21 +272,25 @@ app.post('/webhook/', function(req, res){
   }
 
   findOrCreateUser(req.body.entry[0].messaging[0].sender.id)
-    .then(function(user) {
-      //handler is a function that returns user and messageSend, according to the user's state
+    .then(function(user) { 
+      if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_WAKEUP") {
+        sendTextMessages([{user, messageSend: "ohai"}])
+      }
+
+      //handler is a function that returns user and messageSend, according to the user's state 
       var handler = stateHandlers[user.state];
       //currentState is what it is, before calling handler to set to the next state
       var currentState = user.state;
       // console.log("Moving from state " + currentState + " with " + messageReceived);
-      //call handle to set the state to the next
+      //call handle to set the state to the next 
       var handle = handler(user, messageReceived);
-      // console.log("Got to state " + handle.user.state)
-
+      // console.log("Got to state " + handle.user.state)  
+      
       if (! handler) {
         throw new Error("Can't handle state: " + user.state);
       }
       //changed to 2 after we incremented the state
-      if (currentState === 2) {
+      if (currentState === 2) { 
         // console.log("attempting a sendButton with ", handle.messageSend);
         return sendButton(handle)
       }
@@ -276,5 +307,7 @@ app.post('/webhook/', function(req, res){
       res.status(200).send(err.message);
     });
 });
+
+
 
 module.exports = app;
