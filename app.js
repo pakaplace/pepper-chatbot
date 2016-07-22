@@ -731,7 +731,7 @@ app.post('/webhook/', function(req, res){
         if (messageReceived === user.routineCopy[i].routine) {
           user.routineCopy.splice(index, 1)
           console.log('CURRENT ROUTINE', user.routineCopy)
-          user.save(function(err) {console.log('err from saving routine',err)})
+          // user.save(function(err) {console.log('err from saving routine',err)})
         }
         if (halfTime || fullTime) {
             clearTimeout(halfTime)
@@ -796,7 +796,7 @@ app.post('/webhook/', function(req, res){
       //send a video
       } else if (user.state === 16 || user.prevState === 6) {
       //the video here will be randomly generated later
-        return sendVideo(handle, 'http://clips.vorwaerts-gmbh.de/VfE_html5.mp4', handle.messageSend)
+        return sendVideo(handle, 'https://www.dropbox.com/s/2ho0vc9if14pyht/Tous%20%281%29.webm?dl=0', handle.messageSend)
       } else if (user.prevState === 8 && user.state === 8) {
         // if (user.routineCopy.length) {
         return sendMorningRoutine(handle, user.routineCopy, handle.messageSend, 'begin', 'finish')
@@ -1158,6 +1158,8 @@ function checkForMenu(user, messageReceived) {
       
       user.prevState = user.state; // remember the state you were before opening menu
       user.state = 105;
+      console.log("USERRRRRR", user)
+      console.log("USERRRRRR.reflectionTime", user.reflectionTime)
       ret = {
         user,
         messageSend: ["Your current reflection time is " + user.reflectionTime.hour + ". What time do you want it to be?"]
