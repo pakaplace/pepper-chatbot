@@ -71,7 +71,7 @@ var userSchema = mongoose.Schema({
     type: String,
     name: "Duration but no routine"
   },
-  reflectionTime: [
+  reflectionTime: 
     {
       hour: {
         type: Number,
@@ -81,8 +81,7 @@ var userSchema = mongoose.Schema({
         type: Number,
         default: 0
       }
-    }
-  ],
+    },
   reflectionQuestion: {
     type: String
   },

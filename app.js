@@ -37,14 +37,14 @@ var prompts = {
              "I'll be helping you wake up in the mornings, keeping track of your tasks, and feeding you reflection questions at the end of the day :)"]
  },
  "SETUP": function(errorMessage){
-    var arr = ["You could say 'meditate for 10 minutes', or... 'read for 20 minutes' if that's what you're into?"];
+    var arr = ['You could say "meditate for 10 minutes", or... "primal screaming for 20 minutes" if that\'s what you\'re into?'];
     if (errorMessage !== undefined) {
         arr = [].concat(errorMessage).concat(arr) 
         console.log("Arr", arr);
         return arr
       } 
     else{
-      return ["To start, what's one activity you'd like to incorporate into your morning routine?","For example, you could respond 'meditation for 10 minutes' or 'read for 20 minutes?'"];
+      return ['To start, what\'s one activity you\'d like to incorporate into your morning routine?','For example, you could respond "meditation for 10 minutes" or "read for 20 minutes?"'];
     }
  },
  "MOREROUTINE": {
@@ -85,7 +85,7 @@ var prompts = {
   "DENYSETUP": ["Slow to rise, huh? You can always go back and add a routine later"],
   "SETUPCOMPLETE": ["You're all set. From now on I'll remind you daily!", "If you'd like to start now just let me know..."],
   "TASKPROMPT": ["What do you have to do today?", "Separate tasks by comma since I'm dumb"],
-  "ADDROUTINE":["Awesome. What would you like to add and for how long? One might say, 'Yoga for 20 minutes...' for example"],
+  "ADDROUTINE":['Awesome. What would you like to add and for how long? One might say, "Yoga for 20 minutes..." for example'],
 
   //DAILY
   'START_MORNING': ["Good morning! Ready to kick some ass? This adorable video should help get you out of bed!"],
@@ -109,7 +109,7 @@ var prompts = {
   },
   // IF YES, START TIMER
   'START_MORNING_ROUTINE': ['Which activity would you like to start?'], // + button this one will get asked again and again
-  'DONE_DAILY_ROUINE': ["Fantastic, you've finished, Paul Coehlo once said 'If you think adventure is dangerous, try routine, it is lethal"],
+  'DONE_DAILY_ROUINE': ['Fantastic, you\'ve finished, Paul Coehlo once said "If you think adventure is dangerous, try routine, it is lethal"'],
   // IF NO, START WORKING
   'START_WORKING': {
       "attachment": {
@@ -130,7 +130,7 @@ var prompts = {
       }
   },
   'DONE_WORKING': ["You're finished! Take pride in what you've done today and start planning out your evening. If you'd like to add more tasks, click the menu icon"],
-  'NO_WORKING': ["Okay, just remember that 'Work is never done' - Cole Ellison"],
+  'NO_WORKING': ['Okay, just remember that "Work is never done" - Cole Ellison'],
   'ASK_FOR_TASKS': ['What do you have get done today? Click to add a task'],
   'ADD_ANOTHER_TASK': {
       "attachment": {
@@ -157,7 +157,7 @@ var prompts = {
   "CHANGE_TIME": ["Noted. I've updated your wake up time to: "],
   "CHANGE_TIME_REFLECTION" : ["Noted. I've updated your reflection time to: "],
   "CHANGE_CITY" : ["Noted. I've updated your city to: "],
-  'GREAT': ['Superb, and remember to vote for Trump!!! Make america great again?']
+  'GREAT': ['Superb, and remember to vote for Trump!!! Make America great again? jkjkjkjkjk lol']
 }
 
 app.get('/', function(req, res) {
@@ -1160,7 +1160,7 @@ function checkForMenu(user, messageReceived) {
       user.state = 105;
       ret = {
         user,
-        messageSend: ["Your current reflection time is " + user.reflectionTime.hour.default + ". What time do you want it to be?"]
+        messageSend: ["Your current reflection time is " + user.reflectionTime.hour + ". What time do you want it to be?"]
       }
     }
     
