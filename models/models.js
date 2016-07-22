@@ -3,11 +3,7 @@ var findOrCreate = require('mongoose-findorcreate')
 
 // Create a connect.js inside the models/ directory that
 // exports your MongoDB URI!
-<<<<<<< HEAD
 var connect = require('./connect.js');
-=======
-var connect = require('./connect.js').MONGODB_URI;
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
 
 // var db = mongoose.connection;
 // db.once('open', function callback () {
@@ -56,7 +52,6 @@ var userSchema = mongoose.Schema({
   prevState: {
     type: Number
   },
-<<<<<<< HEAD
   firstname:{
     type: String
   },
@@ -92,46 +87,6 @@ var userSchema = mongoose.Schema({
   reflectionQuestion: {
     type: String
   },
-=======
-  prevState: {
-    type: Number
-  },
-  firstname:{
-    type: String
-  },
-  timezone:{
-    type: Number
-  },
-  locale:{
-    type:String
-  },
-  gender:{
-    type:String
-  },
-  missingDuration:{
-    type: String,
-    name: "Routine but no duration"
-  },
-  missingRoutine:{
-    type: String,
-    name: "Duration but no routine"
-  },
-  reflectionTime: [
-    {
-      hour: {
-        type: Number,
-        default: 21
-      },
-      minute: {
-        type: Number,
-        default: 0
-      }
-    }
-  ],
-  reflectionQuestion: {
-    type: String
-  },
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
   reflection:{
     "title": {
         // "media": {
