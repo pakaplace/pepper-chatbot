@@ -12377,7 +12377,7 @@ Copyright (c) 2015 Daniel Eden
     padding-top: 50px;
     padding-bottom: 94px;
     font-size: 18px;
-    background-color: #00e9ff;
+    background-color: #0084ff;
     max-height: 800px
 }
 .footer ul {
@@ -12504,7 +12504,7 @@ Copyright (c) 2015 Daniel Eden
 }
 .messages .from {
     margin-left: 100px;
-    background: #00e9ff; //change here back ground sms
+    background: #0084ff; //change here back ground sms
     border-bottom-right-radius: 0
 }
 .messages .message:after {
@@ -12523,7 +12523,7 @@ Copyright (c) 2015 Daniel Eden
 .messages .from:after {
     right: 0px;
     border-width: 0 8px 8px 0px;
-    border-color: transparent #00e9ff //change here back ground sms
+    border-color: transparent #0084ff //change here back ground sms
 }
 .faq-content {
     text-align: center;
@@ -12620,12 +12620,12 @@ body {
 body.index .headline .carousel,
 body.bac.bac_index .headline .carousel {
     display: inline;
-    color: #00e9ff
+    color: #0084ff
 }
 body.index .bg-black-color,
 body.bac.bac_index .bg-black-color {
     color: white;
-    background-color: #00e9ff
+    background-color: #0084ff
 }
 body.index #extra_informations,
 body.bac.bac_index #extra_informations {
