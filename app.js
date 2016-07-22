@@ -152,7 +152,7 @@ var prompts = {
   },
   'SHOW_TASKS': ['Here is your tasklist! Wish you a productive day.'],
   'ASK_REFLECTION_QUESTIONS': ['How was your day?', "Who is an interesting person that you meet today?", 'Did you hear an interesting ideas?'],
-  "SAVE_REFLECTION_QUESTION" : ["Thank you, your reflection has been saved.", "Check out your memories at www.x.com"],
+  // "SAVE_REFLECTION_QUESTION" : ["Thank you, your reflection has been saved.", 'Check out your reflection memories at www.pamchatbot.herokuapp.com/' + user._id],
   "ERROR" : ["Please setup your profile before changing your preferences"],
   "CHANGE_TIME": ["Gotcha. I've updated your wakeup time to: "],
   "CHANGE_CITY" : ["Gotcha. I've updated your city to: "],
@@ -442,7 +442,7 @@ var stateHandlers = {
       user.save()
       return {
         user: user,
-        messageSend: prompts.SAVE_REFLECTION_QUESTION
+        messageSend: ["Thank you, your reflection has been saved.", 'Check out your reflection memories at www.pam-bot.herokuapp.com/' + user._id]
       }
     },
 
@@ -500,7 +500,7 @@ var stateHandlers = {
       user.prevState = null;
       return {
         user: user,
-        messageSend: ["Your Routine has been added", 'Check out your reflection memories at www.pamchatbot.herokuapp.com/' + user._id]
+        messageSend: ["Your Routine has been added"]
       }
     },
 }
