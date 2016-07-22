@@ -20,6 +20,9 @@ var userSchema = mongoose.Schema({
     required: true,
     default: 0
   },
+  // token: {
+  //   type: Number
+  // },
   facebookId: { //store facebook id here
     type: String,
     required: true
@@ -61,36 +64,42 @@ var userSchema = mongoose.Schema({
   gender:{
     type:String
   },
+  missingDuration:{
+    type: String,
+    name: "Routine but no duration"
+  },
+  missingRoutine:{
+    type: String,
+    name: "Duration but no routine"
+  },
+  reflectionTime: [
+    {
+      hour: {
+        type: Number,
+        default: 21
+      },
+      minute: {
+        type: Number,
+        default: 0
+      }
+    }
+  ],
+  reflectionQuestion: {
+    type: String
+  },
   reflection:{
     "title": {
-        "media": {
-          "url": String,
-          "caption": String,
-          "credit": String
-        },
+        // "media": {
+        //   "url": String,
+        //   "caption": String,
+        //   "credit": String
+        // },
         "text": {
           "headline": String,
           "text": String
         }
     },
-    "events": [
-      {
-        "media": {
-          "url": String,
-          "caption": String,
-          "credit": String
-        },
-        "start_date": {
-          "month": String,
-          "day": String,
-          "year": String
-        },
-        "text": {
-          "headline": String,
-          "text": String
-        }
-      }
-    ]
+    "events": []
     }
 });
 

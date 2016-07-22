@@ -1,90 +1,51 @@
 'use strict'
+// ___________________
+// < MOJIA LOVES TRUMP >
+// -------------------
+//         \   ^__^
+//         \  (oo)\_______
+//            (__)\       )\/\
+//                 ||----w |
+//                 ||     ||
 const express = require('express')
 const bodyParser = require('body-parser')
 const request = require('request')
 const app = express()
 const TOKEN = process.env.FB_TOKEN
+//wit
 const WIT_TOKEN = process.env.WIT_TOKEN
 const WitThing = require('node-wit');
 const wit = new WitThing.Wit({accessToken: WIT_TOKEN});
-const moment = require('moment');
-var path = require('path');
 
-// view engine setup
+var path = require('path');
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
-
-// let Wit = null;
-// let log = null;
-// try {
-//   // if running from repo
-//   Wit = require('../').Wit;
-//   log = require('../').log;
-// } catch (e) {
-//   Wit = require('node-wit').Wit;
-//   log = require('node-wit').log;
-// }
-
-
-
-
-
 app.set('port', 3000)
-// localhost: 8080
 app.use(bodyParser.urlencoded({extended: false}))
-
 app.use(bodyParser.json())
 
 //Models
 var User = require('./models/models').User;
 
-// var state = {
-
-// /* Setup States */
-// 0: "NOT_STARTED",
-// 1: "SETUP_ROUTINE_PROMPTING",
-// 2: "SETUP_ROUTINE_ASKING_AND_TIME",
-// 3: "SETUP_ASKING_CITY",
-// 4: "SETUP_ASKING_WAKEUPTIME",
-// 5: "SETUP_READY"
-
-// /* Daily States */
-// 5: "ROUTINE_NOT_RECEIVED",
-// 6: "ROUTINE_IN_PROGRESS",
-// 7: "TASKLIST_PROMPTING",
-// 8: "TASKLIST_ASKING",
-// 9: "TASKLIST_ASKING_TIME"
-// }
-
-// DAILY_GREETING_AND_VIDEO (maybe break this up?)
-// ASK_DAILY_ROUTINE
-// START_DAILY_ROUTINE (ask again until finished)
-// DONE_DAILY_ROUINE (and then a reward)
-// START_WORKING
-// NOT_WORKING
-// ASK_FOR_TASKS
-// DONE_TASKS
-// ASK_REFLECTION_QUESTIONS
-// DONE_FOR_THE_DAY
-
-
-
-
 //prompts are all the response PAM would send back
 var prompts = {
   //SETUP
- "WELCOME":function(user){
-   return  ["Hey there "+ user.firstname, "I am Pam, your personal assistant. Let's set you up",
+ "WELCOME": function(user){
+   return  ["Hey "+ user.firstname, "I am Pam, your personal assistant. Let's set you up",
              "I'll help you get up in the mornings and fulfill your personal goals"]
  },
  "SETUP": function(errorMessage){
-  var arr = [errorMessage,"Meditation, pushups, tea? What's one thing you should you be doing every morning?",
-             "For example, you could respond 'Meditation for 10 minutes', or... 'Read for 20 minutes'?"]
-  if(!errorMessage){
-      arr.splice(0,1);
+    var arr = ["Meditation, pushups, tea? What's one thing you should you be doing every morning?",
+             "For example, you could respond 'Meditation for 10 minutes', or... 'Read for 20 minutes'?"];
+    if (errorMessage !== undefined) {
+        arr = [].concat(errorMessage).concat(arr)
+        console.log("Arr", arr);
+        return arr
+      }
+    else{
+      return ["Meditation, pushups, tea? What's one thing you should you be doing every morning?","For example, you could respond 'Meditation for 10 minutes', or... 'Read for 20 minutes'?"];
     }
-   return arr
  },
  "MOREROUTINE": {
      "attachment": {
@@ -105,18 +66,21 @@ var prompts = {
      }
  },
   "CITY": function(errorMessage){
-    var arr = [errorMessage,"What city and state do you live in? For example, you could say 'Chapel Hill, North Carolina'... "]
     if(errorMessage === undefined){
-      arr.splice(0,1);
+      return ["What city and state do you live in? For example, you could say 'Chapel Hill, North Carolina'... "]
     }
-    return arr
+    else{
+      return [errorMessage,"What city and state do you live in? For example, you could say 'Chapel Hill, North Carolina'... "]
+    }
   },
-  'TIMETOWAKEUP':function(errrorMessage){
-    var arr = [errorMessage,'What time to you want me to wake up?']
+  'TIMETOWAKEUP': function(errorMessage) {
     if(errorMessage === undefined){
-      arr.splice(0,1);
+      return ['What time to you want me to wake up?']
     }
-    return arr},
+    else {
+      return [errorMessage,'What time to you want me to wake up?']
+    }
+  },
   'FINISHEDSETUP': ["Your routine is X, We'll remind every X hours. If you'd like to change your settings at any time, send'menu'. You are set"],
   "DENYSETUP": ["Slow to rise, huh? You can always go back and add a routine later"],
   "SETUPCOMPLETE": ["You're all set up, from now on I'll remind you daily!", "If you'd like to start now, say something..."],
@@ -187,7 +151,7 @@ var prompts = {
       }
   },
   'SHOW_TASKS': ['Here is your tasklist! Wish you a productive day.'],
-  'ASK_REFLECTION_QUESTIONS': ['How was your day?'],
+  'ASK_REFLECTION_QUESTIONS': ['How was your day?', "Who is an interesting person that you meet today?", 'Did you hear an interesting ideas?'],
   "SAVE_REFLECTION_QUESTION" : ["Thank you, your reflection has been saved.", "Check out your memories at www.x.com"],
   "ERROR" : ["Please setup your profile before changing your preferences"],
   "CHANGE_TIME": ["Gotcha. I've updated your wakeup time to: "],
@@ -195,8 +159,7 @@ var prompts = {
 }
 
 app.get('/', function(req, res) {
-  res.send('I am Pam !');
-  console.log('asdf')
+  res.send('I am Pam!');
 });
 
 //get user's messages and verify the token. This is from the website
@@ -213,7 +176,6 @@ var stateHandlers = {
     0: function(user, messageReceived) {
       //set state to 1, ask for routine
       user.state = 1
-      console.log("USER-----*****-------****", user);
       return {
         user: user,
         messageSend: prompts.WELCOME(user)
@@ -222,7 +184,6 @@ var stateHandlers = {
   // SETUP_ROUTINE_PROMPTING
     1: function(user, messageReceived) { //
     //if the user says 'no' to add another routine, set state to 4 to ask for city
-
       if(messageReceived === 'no'){
         user.state = 4
         //deleted state 3 that ask for city and put it here
@@ -236,30 +197,53 @@ var stateHandlers = {
       user.state = 2
       return {
         user: user,
-        messageSend: prompts.SETUP("Great!")
+        messageSend: prompts.SETUP()
       }
     },
   //SETUP_ROUTINE_ASKING & TIME
     2: function(user, messageReceived, data) { //add data as third parameter
       //whenever state is set to 2, directly go back to 1
+      console.log("[2] State is: ", messageReceived);
+      console.log("[2] data is: ", data);
       user.state = 1
       var newRoutine = {};
-      console.log("DATA WOOHOOOOOOOO", data.entities.duration);
-      newRoutine.routine = data.entities.agenda_entry[0].value,
-      newRoutine.duration = data.entities.duration[0].normalized.value/60 //to acount for seconds
-      if(data.entities.agenda_entry === undefined){ // data.entities.location === 'undefined'
+      if(user.missingDuration || user.missingRoutine){
+         newRoutine = {
+           routine: user.missingDuration, //filled in
+           duration: user.missingRoutine //null
+         }
+      }
+      console.log("New Routine", newRoutine)
+      // if(data.entities.agenda_entry === undefined || data.entities.duration === undefined){
+      //   user.state = 2;
+      // }
+      if(data.entities.duration){ //new routine is checked because if one is saved and the other isn't then it must be
+        newRoutine.duration = data.entities.duration[0].normalized.value/60 //to acount for seconds
+        user.missingRoutine = data.entities.duration[0].normalized.value/60
+      }
+      if(data.entities.agenda_entry){
+        newRoutine.routine = data.entities.agenda_entry[0].value; //to acount for seconds
+        user.missingDuration = data.entities.agenda_entry[0].value;
+      }
+      if(newRoutine.routine === null || newRoutine.routine === undefined){ // data.entities.location === 'undefined'
+          console.log("Agenda undefined")
           user.state = 2
+          user.prevState = 1;
           return {user, messageSend: prompts.SETUP("Woops, either you forgot to include a routine or I didn't pick up on that?")}
       }
-      if(data.entities.duration === 'undefined'){
+      if(newRoutine.duration === null || newRoutine.duration === undefined){
           user.state = 2
+          user.prevState = 1;
+          console.log("Duration undefined")
           return {user, messageSend: prompts.SETUP("For how long? 5 minutes, half an hour...?")}
       }
       else{
         var status = "Awesome!"
         user.routine.push(newRoutine)
+        console.log("ROUTINE", newRoutine)
       }
-
+      user.missingRoutine = null;
+      user.missingDuration = null;
       return {
         user: user,
         messageSend: prompts.MOREROUTINE
@@ -267,35 +251,33 @@ var stateHandlers = {
     },
   //SETUP_TIMETOWAKEUP_ASKING
     4: function(user, messageReceived, data) {
-      user.state = 5
-      if(data.entities.location === 'undefined'){
+      if(data.entities.location === undefined){
         user.state=4;
-        return { user: user, messageSend:prompts.CITY("Oops, looks like you didn't enter in the name of your state.")
+        return { user, messageSend: prompts.CITY("Oops, looks like you didn't enter in the name of your state.")
         }
-      }
-      user.city = data.entities.location[0].value;
-      return {
-        user: user,
-        messageSend: prompts.TIMETOWAKEUP()
+      } else {
+        user.state = 5
+        user.city = data.entities.location[0].value;
+        return {
+          user: user,
+          messageSend: prompts.TIMETOWAKEUP()
+        }
       }
     },
   //SETUP_READY
     5: function(user, messageReceived, data) {
-      console.log("yoyoyo ")
       user.state = 6
+      // user.token = randomCode();
       user.timeToWakeUp.hour = new Date(data.entities.datetime[0].values[0].value).getHours();
       user.timeToWakeUp.minute = new Date(data.entities.datetime[0].values[0].value).getMinutes();
       user.timeToWakeUp.time = user.timeToWakeUp.hour+":"+user.timeToWakeUp.minute;
       //reduce all the routines to a string
-      console.log("ROUTINE 1", user.routine)
       var routine = user.routine.reduce(function(prev, cur) {
-        console.log("yoyoyo ",prev)
         return prev + cur.routine.toString() + " for "+ cur.duration.toString() + " minutes , " ;
-      }, ' ')
-      console.log("ROUTINE 2", user.routine)
+      }, '')
       return {
-        user: user,
-        messageSend: ["Your morning routine is" + routine + "We'll remind you every 3 hours.",
+        user,
+        messageSend: ["Your morning routine is " + routine + "We'll remind you every 3 hours.",
         "If you'd like to change your settings at any time, send 'menu'. You are set"]
       }
     },
@@ -320,15 +302,23 @@ var stateHandlers = {
     //from state 7 asking if you want to start morning routine
       if (messageReceived === 'no') {
         user.state = 10 //start working
+        return {
+          user: user,
+          messageSend: prompts.START_MORNING_ROUTINE
+        }
       }
     //if the user has finished morning routine
       if (!user.routineCopy.length) {
         user.state = 9
-      }
-      return {
+        return;
+      } else {
+        return {
         user: user,
         messageSend: prompts.START_MORNING_ROUTINE
       }
+      }
+
+
     }, //ask again until finished
   // DONE_DAILY_ROUINE
     9: function(user, messageReceived) {
@@ -410,14 +400,38 @@ var stateHandlers = {
   // ASK_REFLECTION_QUESTIONS
     16: function(user, messageReceived) {
       user.state = 17
+      //choose a random reflection question
+      user.reflectionQuestion = prompts.ASK_REFLECTION_QUESTIONS[Math.floor(Math.random()*prompts.ASK_REFLECTION_QUESTIONS.length)];
+      // user.reflectionQuestion =
       return {
         user: user,
-        messageSend: prompts.ASK_REFLECTION_QUESTIONS
+        messageSend: user.reflectionQuestion
       }
     },
-      // SAVE_REFLECTION_QUESTION
+    // SAVE_REFLECTION_QUESTION
     17: function(user, messageReceived) {
-      user.reflection.push(messageReceived)
+      var date = new Date();
+      user.reflection.title.text.headline = user.reflectionQuestion;
+      user.reflection.title.text.headline = messageReceived;
+      user.reflection.events.push(
+        {
+          //detect key words and display pictures
+          // "media": {
+          //   "url": String,
+          //   "caption": String,
+          //   "credit": String
+          // },
+          "start_date": {
+            "month": date.getMonths() + 1,
+            "day": date.getDays(),
+            "year": date.getYears()
+          },
+          "text": {
+            "headline": user.reflectionQuestion,
+            "text": messageReceived
+          }
+        }
+      )
       return {
         user: user,
         messageSend: prompts.SAVE_REFLECTION_QUESTION
@@ -429,24 +443,22 @@ var stateHandlers = {
     100: function(user, messageReceived){ //fix
       user.timeToWakeUp = messageReceived
       user.state = user.prevState; //remembers where you were before menu
-      // user.prevState = 100;
       user.prevState = null;
-        var CHANGE_TIME = prompts.CHANGE_TIME;
-        CHANGE_TIME += user.timeToWakeUp;
-          return {
-           user,
-           messageSend: [CHANGE_TIME]
-          }
+      var CHANGE_TIME = prompts.CHANGE_TIME;
+      CHANGE_TIME += user.timeToWakeUp;
+        return {
+         user,
+         messageSend: [CHANGE_TIME]
+        }
     },
   // EDIT_CITY
     101: function(user, messageReceived){
       user.city = messageReceived
       // user.state = user.prevState; //remembers where you were before menu
       // user.prevState = 101;
-      console.log("[User prev state]: ", user.prevState);
       user.state = user.prevState
-        var CHANGE_CITY = prompts.CHANGE_CITY;
-        CHANGE_CITY += user.city;
+      var CHANGE_CITY = prompts.CHANGE_CITY;
+      CHANGE_CITY += user.city;
       return {
         user,
         messageSend: [CHANGE_CITY]
@@ -455,7 +467,7 @@ var stateHandlers = {
     // EDIT_ROUTINES sendMultiButton creates a message with multiple buttons of the tasks/routines in the array
     102: function(user, messageReceived) {
       // user.state = user.prevState; //remembers where you were before menu
-      if(messageReceived.indexOf("ADD_NEW_ROUTINE") > -1 ){
+      if(messageReceived.indexOf("ADD_NEW_ROUTINE") !== -1 ){
         user.state = 103
         return {
           user,
@@ -480,36 +492,61 @@ var stateHandlers = {
       user.prevState = null;
       return {
         user: user,
-        messageSend: ["Your Routine has been added"]
+        messageSend: ["Your Routine has been added", 'Check out your reflection memories at www.pamchatbot.herokuapp.com/' + user._id]
       }
     },
 }
 
-// ETHAN DEBUG
+// function randomCode() {
+//   var min = 100000;
+//   var max = 999999;
+//   return Math.floor(Math.random() * (max - min + 1)) + min;
+// }
 
+// // Ethan Debug
 // app.post('/webhook', (req, res) => {
 //   res.send('ethan debug complete :-)')
 // })
 
-app.get('/reflection', (req, res, next) => {
-  User.find(function(err, users) {
-    if (err) res.status*(400).send(err);
-    res.render('index')
-  })
-  var data = require('./reflection.json')
-  data = JSON.stringify(data);
-  res.render('index', {
-    data
+app.get('/reflection/:id', (req, res, next) => {
+  User.findById(req.params.id, function(err, user) {
+    if (err) {res.status(400).send(err);}
+    var data = JSON.stringify(user.reflection);
+    res.render('reflection', {
+      data
+    })
   })
 })
+
+app.get('/', (req, res, next) => {
+  res.render('index')
+})
+
+app.get('/sendScheduled', (req, res, next) => {
+  User.find(function(err, users) {
+    if (err) {
+      res.status(400).send('error', {
+        message: err
+      })
+    }
+    users.forEach(function(user) {
+      var date = new Date();
+      var userHours = date.getUTCHours() + user.timezone;
+      if (user.timeToWakeUp.hour === userHours && user.timeToWakeUp.minute <= date.getMinutes()) {
+        user.state = 7
+        sendVideo({user, messageSend: prompts.START_MORNING}, 'http://clips.vorwaerts-gmbh.de/VfE_html5.mp4', prompts.START_MORNING)
+      } else if (user.reflectionTime.hour === userHours && user.reflectionTime.minute <= date.getMinutes()) {
+        user.state = 17
+        sendTextMessages({user, messageSend: prompts.ASK_REFLECTION_QUESTIONS})
+      }
+    })
+  })
+});
 
 app.post('/test/timeout', (req, res, next) => {
   console.log('entering timeout')
   setTimeout(() => {
     sendTextMessages({user: '1069904196424805', messageSend: ["You sent this " + req.body.delay + " seconds after this"]})
-    // {[
-    //   "You sent this " + req.body.delay + " seconds after this"
-    // ]);
   }, req.body.delay);
 })
 
@@ -527,10 +564,8 @@ app.post('/webhook/', function(req, res){
     .then(function(user){
       console.log("MESSAGE RECEIVED YO", messageReceived)
       return new Promise(function(resolve, reject){
-        console.log("MESSAGE RECEIVED YO", messageReceived)
         wit.message(messageReceived, {})
         .then((data) => {
-          console.log("Yay, got a Wit.ai response ", data);
           req.witData = data;
           resolve(user)
         })
@@ -541,10 +576,8 @@ app.post('/webhook/', function(req, res){
       return new Promise((resolve, reject) => {
         request('https://graph.facebook.com/v2.6/'+user.facebookId+'?fields=first_name,\
         timezone,locale,gender&access_token='+TOKEN, (err, req, body) => {
-          if (err) reject(err);
+          if (err) {reject(err);}
           if(body){
-            console.log("BODY-----  ", body)
-            console.log("Body type: ", typeof body);
             body = JSON.parse(body);
             user.firstname = body.first_name;
             user.timezone = body.timezone;
@@ -556,7 +589,6 @@ app.post('/webhook/', function(req, res){
         })
       })
     }).then(function(user) {
-      // console.log("MESSAGE RECEIVED ", messageReceived)
       //user.prevState is what it is, before calling handler to set to the next state
       // freeze prevState if state is >= 100
       console.log("+++++++User state+++++:", user.state)
@@ -569,7 +601,7 @@ app.post('/webhook/', function(req, res){
         if (user.prevState < 6) {
           throw sendTextMessages({user, messageSend: prompts.ERROR})
         }
-        //
+
         if (user.state === 102) {
           console.log("I AM IN STATE 200222222")
           sendButtons(menuMessage, user.routine, [
@@ -616,14 +648,35 @@ app.post('/webhook/', function(req, res){
         user.routineCopy.splice(index, 1)
         user.save(function(err) {console.log('err from saving routine',err)})
         if (time) {
-          clearTimeout(time)
+          clearTimeout(halfTime)
+          clearTimeout(fullTime)
         }
       }
       //when the user start the routine
-      else if (messageReceived === 'start'){
+      else if (messageReceived.slice(0, 5) === 'start'){
         //need time for the routine
-        var time = setTimeout(() => sendTextMessages({user, messageSend: ['Half a minute left']}), 1000)
-        return handle;
+        console.log("ROUTINE TIMER")
+        var index;
+        var duration;
+        for (var i = 0; i < user.routineCopy.length; i ++) {
+          if (messageReceived.slice(5) === user.routineCopy[i].routine) {
+            duration = user.routineCopy[i].duration;
+            index = i;
+          }
+        }
+        console.log("DURATION-----",duration)
+         sendTextMessages({user, messageSend: ['Timer starts now! You have '+user.routineCopy[index].duration+" minutes left..."]})
+        var halfTime = setTimeout(() => sendTextMessages({user, messageSend: [duration/2 + ' minutes left']}), duration/2 * 60 * 1000)
+        var fullTime = setTimeout(function() {
+            sendTextMessages({user, messageSend: ['Time up']})
+            user.routineCopy.splice(index, 1);
+            sendMorningRoutine(handle, user.routineCopy, handle.messageSend, 'start', 'finish')
+            user.save(function(err) {console.log('err from saving routine',err)})
+
+        }, duration * 60 * 1000);
+        console.log("handle",handle);
+
+        return  handle
       }
       /*END OF MORNING ROUTINE*/
 
@@ -632,16 +685,12 @@ app.post('/webhook/', function(req, res){
         throw new Error("Can't handle state: " + user.state);
       }
       if (user.state >= 100) {
-        // if (handle === promices) {
-        //   handle.then((data) => {
-        //     sendTextMessages(data)
-        //   })
-        // }
         return sendTextMessages(handle);
       }
       //changed to 2 after we incremented the state
       else if (user.prevState === 2 || user.prevState === 7 || user.prevState === 10 || user.prevState === 14) {
         // console.log("attempting a sendButton with ", handle.messageSend);
+        console.log("Sending button: ", handle);
         return sendButton(handle)
       //send a video
       } else if (user.prevState === 6 || user.prevState === 11) {
@@ -649,8 +698,7 @@ app.post('/webhook/', function(req, res){
         return sendVideo(handle, 'http://clips.vorwaerts-gmbh.de/VfE_html5.mp4', handle.messageSend)
       } else if (user.prevState === 8 && user.state === 8) {
         // if (user.routineCopy.length) {
-
-          return sendMultiButton(handle, user.routineCopy, handle.messageSend, 'start', 'finish')
+        return sendMorningRoutine(handle, user.routineCopy, handle.messageSend, 'start', 'finish')
         // } else {
         //   user.prevState = 8;
         //   user.state = 9;
@@ -666,8 +714,6 @@ app.post('/webhook/', function(req, res){
       return sendTextMessages(handle)
     })
     .then(function(resp) {
-      console.log("RESP", resp)
-      console.log("RESP.USER------------"+ resp.user);
       return resp.user.save();
     })
     .then(function(user) {
@@ -677,8 +723,6 @@ app.post('/webhook/', function(req, res){
       console.log("[err]", err, typeof err);
       res.status(200).send(err.message);
     })
-
-    if (typeof handler === 'promise') {} //depending on which type of handler is returned
 });
 
 // findOrCreateUser(facebookId<string>)
@@ -709,7 +753,6 @@ var sendTextMessages = function(resp) {
       } else if (response && response.body && response.body.error) {
         reject(response.body.error);
       } else if (resp.messageSend.length) {
-        console.log("MESSAGESENDDDD", resp.messageSend)
         var message = resp.messageSend[0];
         resp.messageSend = resp.messageSend.slice(1);
         request({
@@ -745,9 +788,10 @@ function sendButton(resp) {
       }
     }, function(error, response, body) {
         if (error) {
-            console.log('Error sending messages: ', error)
+            // console.log('Error sending messages: ', error)
         } else if (response.body.error) {
-            console.log('Error: ', response.body.error)
+          // reject(error); fix
+            // console.log('Error: ', response.body.error)
         } else {
         //this is the callback and pass down resp
           resolve(resp)
@@ -824,8 +868,56 @@ function sendVideo(resp, url, text) {
 }
 
 //sendMultiButton creates a message with multiple buttons of the tasks/routines in the array
+function sendMorningRoutine(resp, arr, text, buttonTitle1, buttonTitle2) {
+  return new Promise(function(resolve, reject) {
+    var messageData = {
+      "attachment": {
+        "type": "template",
+        "payload": {
+            "template_type": "generic",
+            // "text": text,
+            "elements": []
+        }
+      }
+    }
+    arr.forEach(function(element) {
+      var el = {
+        "title": element.routine,
+        // "subtitle": "Element #1 of an hscroll",
+        "image_url": "http://cdn1.bostonmagazine.com/wp-content/uploads/2013/10/mornign-yoga-main.jpg",
+        "buttons": [{
+          'type': 'postback',
+          'payload': buttonTitle1 + element.routine,
+          'title': buttonTitle1
+        },{
+          'type': 'postback',
+          'payload': element.routine,
+          'title': buttonTitle2
+        }]
+      }
+      messageData.attachment.payload.elements.push(el)
+    })
+    request({
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token:TOKEN},
+        method: 'POST',
+        json: {
+            recipient: {id: resp.user.facebookId},
+            message: messageData,
+        }
+      }, function(error, response, body) {
+        if (error) {
+            console.log('Error sending messages: ', error)
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error)
+        } else {
+          resolve(resp)
+        }
+    })
+  })
+}
+
 function sendMultiButton(resp, arr, text, buttonTitle1, buttonTitle2) {
-  console.log("Sending arrary: ", arr);
   return new Promise(function(resolve, reject) {
     var messageData = {
       "attachment": {
