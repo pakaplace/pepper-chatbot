@@ -33,19 +33,18 @@ var User = require('./models/models').User;
 var prompts = {
   //SETUP
  "WELCOME": function(user){
-   return  ["Hey "+ user.firstname, "I am Pam, your personal assistant. Let's set you up",
-             "I'll help you get up in the mornings and fulfill your personal goals"]
+   return  ["Nice to meet you "+ user.firstname, "Your decision to message me was a good one, as you'll see...",
+             "I'll be helping you wake up in the mornings, keeping track of your tasks, and feeding you reflection questions at the end of the day :)"]
  },
  "SETUP": function(errorMessage){
-    var arr = ["Meditation, pushups, tea? What's one thing you should you be doing every morning?",
-             "For example, you could respond 'Meditation for 10 minutes', or... 'Read for 20 minutes'?"];
+    var arr = ["You could say 'meditate for 10 minutes', or... 'read for 20 minutes' if that's what you're into?"];
     if (errorMessage !== undefined) {
         arr = [].concat(errorMessage).concat(arr) 
         console.log("Arr", arr);
         return arr
       } 
     else{
-      return ["Meditation, pushups, tea? What's one thing you should you be doing every morning?","For example, you could respond 'Meditation for 10 minutes', or... 'Read for 20 minutes'?"];
+      return ["To start, what's one activity you'd like to incorporate into your morning routine?","For example, you could respond 'meditation for 10 minutes' or 'read for 20 minutes?'"];
     }
  },
  "MOREROUTINE": {
@@ -57,39 +56,39 @@ var prompts = {
              "buttons": [{
                    "type": "postback",
                    "payload": 'yes',
-                   "title": 'yes'
+                   "title": 'Yes'
                }, {
                    "type": "postback",
                    "payload": 'no',
-                   "title": 'no'
+                   "title": 'No'
                }]
          }
      }
  },
   "CITY": function(errorMessage){
     if(errorMessage === undefined){
-      return ["What city and state do you live in? For example, you could say 'Chapel Hill, North Carolina'... "]
+      return ["What city and state do you live in? I'm from Chapel Hill, North Carolina... "]
     }
     else{
-      return [errorMessage,"What city and state do you live in? For example, you could say 'Chapel Hill, North Carolina'... "]
+      return [errorMessage]
     }
   },
   'TIMETOWAKEUP': function(errorMessage) {
     if(errorMessage === undefined){
-      return ['What time to you want me to wake up?']
+      return ["I'll be on you daily to make sure you stick to your morning routine. What time would you like me to wake up? "]
     }
     else {
-      return [errorMessage,'What time to you want me to wake up?'] 
+      return [errorMessage,'What time would you like me to to wake up?'] 
     }    
   },
-  'FINISHEDSETUP': ["Your routine is X, We'll remind every X hours. If you'd like to change your settings at any time, send'menu'. You are set"],
+  'FINISHEDSETUP': ["Your routine is X, We'll remind every 3 hours. If you'd like to change your settings at any time, send'menu'. You are set"],
   "DENYSETUP": ["Slow to rise, huh? You can always go back and add a routine later"],
-  "SETUPCOMPLETE": ["You're all set up, from now on I'll remind you daily!", "If you'd like to start now, say something..."],
-  "TASKPROMPT": ["Great, what do you have to do today?", "Separate tasks by comma since I'm dumb"],
+  "SETUPCOMPLETE": ["You're all set. From now on I'll remind you daily!", "If you'd like to start now just let me know..."],
+  "TASKPROMPT": ["What do you have to do today?", "Separate tasks by comma since I'm dumb"],
   "ADDROUTINE":["Awesome. What would you like to add and for how long? One might say, 'Yoga for 20 minutes...' for example"],
 
   //DAILY
-  'START_MORNING': ["Good morning! Ready to save the world? Let this adorable video wake you up!"],
+  'START_MORNING': ["Good morning! Ready to kick some ass? This adorable video should help get you out of bed!"],
   'ASK_MORNING_ROUTINE': {
       "attachment": {
           "type": "template",
@@ -99,18 +98,18 @@ var prompts = {
               "buttons": [{
                     "type": "postback",
                     "payload": 'yes',
-                    "title": 'yes'
+                    "title": 'Yes'
                 }, {
                     "type": "postback",
                     "payload": 'no',
-                    "title": 'no'
+                    "title": 'No'
                 }]
           }
       }
   },
   // IF YES, START TIMER
-  'START_MORNING_ROUTINE': ['Which one would you like to start?'], // + button this one will get asked again and again
-  'DONE_DAILY_ROUINE': ['Congrats on finishing your morning routine! Such a good way to start the day!'],
+  'START_MORNING_ROUTINE': ['Which activity would you like to start?'], // + button this one will get asked again and again
+  'DONE_DAILY_ROUINE': ["Fantastic, you've finished, Paul Coehlo once said 'If you think adventure is dangerous, try routine, it is lethal"],
   // IF NO, START WORKING
   'START_WORKING': {
       "attachment": {
@@ -121,18 +120,18 @@ var prompts = {
               "buttons": [{
                     "type": "postback",
                     "payload": 'yes',
-                    "title": 'yes'
+                    "title": 'Yes'
                 }, {
                     "type": "postback",
                     "payload": 'no',
-                    "title": 'no'
+                    "title": 'No'
                 }]
           }
       }
   },
-  'DONE_WORKING': ['Congrats for such a productive day! Take a rest with this video.'],
-  'NO_WORKING': ['You lazy piece of shit! Let me know when you get over your laziness.'],
-  'ASK_FOR_TASKS': ['What are your tasks today? Add a task.'],
+  'DONE_WORKING': ["You're finished! Take pride in what you've done today and start planning out your evening. If you'd like to add more tasks, click the menu icon"],
+  'NO_WORKING': ["Okay, just remember that 'Work is never done' - Cole Ellison"],
+  'ASK_FOR_TASKS': ['What do you have get done today? Click to add a task'],
   'ADD_ANOTHER_TASK': {
       "attachment": {
           "type": "template",
@@ -142,22 +141,23 @@ var prompts = {
               "buttons": [{
                     "type": "postback",
                     "payload": 'yes',
-                    "title": 'yes'
+                    "title": 'Yes'
                 }, {
                     "type": "postback",
                     "payload": 'no',
-                    "title": 'no'
+                    "title": 'No'
                 }]
           }
       }
   },
-  'SHOW_TASKS': ['Here is your tasklist! Wish you a productive day.'],
-  'ASK_REFLECTION_QUESTIONS': ['How was your day?', "Who is an interesting person that you meet today?", 'Did you hear an interesting ideas?'],
+  'SHOW_TASKS': ["Here's what you have to do today?"],
+  'ASK_REFLECTION_QUESTIONS': ["What's one conversation or interaction you had today that really mattered?"],
   // "SAVE_REFLECTION_QUESTION" : ["Thank you, your reflection has been saved.", 'Check out your reflection memories at www.pamchatbot.herokuapp.com/' + user._id],
-  "ERROR" : ["Please setup your profile before changing your preferences"],
-  "CHANGE_TIME": ["Gotcha. I've updated your wakeup time to: "],
-  "CHANGE_CITY" : ["Gotcha. I've updated your city to: "],
-  'GREAT': ['Great!']
+  "ERROR" : ["Please finish these first few setup questions before changing your preferences"],
+  "CHANGE_TIME": ["Noted. I've updated your wake up time to: "],
+  "CHANGE_TIME_REFLECTION" : ["Noted. I've updated your reflection time to: "],
+  "CHANGE_CITY" : ["Noted. I've updated your city to: "],
+  'GREAT': ['Superb, and remember to vote for Trump!!! Make america great again?']
 }
 
 app.get('/', function(req, res) {
@@ -270,7 +270,7 @@ var stateHandlers = {
     5: function(user, messageReceived, data) {
       user.state = 6
       // user.token = randomCode();
-      user.timeToWakeUp.hour = new Date(data.entities.datetime[0].values[0].value).getHours();
+      user.timeToWakeUp.hour = new Date(data.entities.datetime[0].values[0].value).getHours()+user.timezone;
       user.timeToWakeUp.minute = new Date(data.entities.datetime[0].values[0].value).getMinutes();
       user.timeToWakeUp.time = user.timeToWakeUp.hour+":"+user.timeToWakeUp.minute;
       //reduce all the routines to a string
@@ -311,7 +311,7 @@ var stateHandlers = {
       }
     //if the user has finished morning routine 
       if (!user.routineCopy.length) {
-        user.state = 9
+        user.state = 10
         return {
         user: user,
         messageSend: prompts.DONE_DAILY_ROUINE
@@ -326,13 +326,13 @@ var stateHandlers = {
       
     }, //ask again until finished
   // DONE_DAILY_ROUINE
-    9: function(user, messageReceived) {
-      user.state = 10
-      return {
-        user: user,
-        messageSend: prompts.GREAT
-      }
-    }, // give a reward
+    // 9: function(user, messageReceived) {
+    //   user.state = 10
+    //   return {
+    //     user: user,
+    //     messageSend: prompts.GREAT
+    //   }
+    // }, // give a reward
   // START_WORKING
     10: function(user, messageReceived) {
       user.state = 12
@@ -367,6 +367,7 @@ var stateHandlers = {
     
   // ASK_FOR_TASKS
     13: function(user, messageReceived) {
+      console.log("ethan debug" ,messageReceived);
       if (messageReceived === 'yes') {
         user.state = 14
         return {
@@ -383,7 +384,9 @@ var stateHandlers = {
     },
   // ADD_ANOTHER_TASK yes or no 
     14: function(user, messageReceived) {
-      user.tasks.push(messageReceived);
+      
+      user.tasks = user.tasks.concat(messageReceived);
+      console.log("user.tasks", user.tasks);
       user.state = 13
       return {
         user: user,
@@ -393,6 +396,11 @@ var stateHandlers = {
   // SHOW_TASK
     15: function(user, messageReceived) {
     //if the user has finished all the tasks
+    if (messageReceived.indexOf('finish') > -1) {
+        console.log("WARNING! - Splicing out!");
+        var index = messageReceived[messageReceived.length - 1];
+        user.tasks.splice(index, 1)
+    }
       if (!user.tasks.length) {
         user.state = 16
         return {
@@ -443,23 +451,29 @@ var stateHandlers = {
       user.save()
       return {
         user: user,
-        messageSend: ["Thank you, your reflection has been saved.", 'Check out your reflection memories at www.pam-bot.herokuapp.com/' + user._id]
+        messageSend: ["I've saved your  reflection, thanks for sharing. Your information will always be kept private", 'Check out a visualizaiton of your reflection log at www.pam-bot.herokuapp.com/' + user._id]
       }
     },
 
   // >= 100: EDIT STATES
   // EDIT_WAKEUP_TIME
-    100: function(user, messageReceived){ //fix
-      user.timeToWakeUp = messageReceived
+    100: 
+    function(user, messageReceived, data) {
       user.state = user.prevState; //remembers where you were before menu
       user.prevState = null; 
+      // user.token = randomCode();
+      user.timeToWakeUp.hour = new Date(data.entities.datetime[0].values[0].value).getHours()+user.timezone;
+      user.timeToWakeUp.minute = new Date(data.entities.datetime[0].values[0].value).getMinutes();
+      user.timeToWakeUp.time = user.timeToWakeUp.hour+":"+user.timeToWakeUp.minute;
+      //reduce all the routines to a string
       var CHANGE_TIME = prompts.CHANGE_TIME;
-      CHANGE_TIME += user.timeToWakeUp;
+      CHANGE_TIME += user.timeToWakeUp.time;
         return {
          user,
          messageSend: [CHANGE_TIME]
         }
     },
+  
   // EDIT_CITY
     101: function(user, messageReceived){
       user.city = messageReceived 
@@ -485,7 +499,7 @@ var stateHandlers = {
       } else if (messageReceived.indexOf("DELETE_ROUTINE") > -1){
       
         var index = parseInt(messageReceived[messageReceived.length-1])
-        var deletedMessage = user.routine[index]
+        var deletedMessage = user.routine[index].routine;
         user.routine.splice(index, 1)
       
         return {
@@ -495,15 +509,70 @@ var stateHandlers = {
       }
     },
     //add routine
-    103: function(user, messageReceived) {
-      user.routine.push(messageReceived)
-      user.state = user.prevState;
-      user.prevState = null;
+    103: function(user, messageReceived, data){
+    
+      var newRoutine = {};
+      if(user.missingDuration || user.missingRoutine){
+         newRoutine = {
+           routine: user.missingDuration, //filled in
+           duration: user.missingRoutine //null
+         }
+      }
+      console.log("New Routine", newRoutine)
+      // if(data.entities.agenda_entry === undefined || data.entities.duration === undefined){
+      //   user.state = 2;
+      // }
+      if(data.entities.duration){ //new routine is checked because if one is saved and the other isn't then it must be
+        newRoutine.duration = data.entities.duration[0].normalized.value/60 //to acount for seconds
+        user.missingRoutine = data.entities.duration[0].normalized.value/60
+      }
+      if(data.entities.agenda_entry){
+        newRoutine.routine = data.entities.agenda_entry[0].value; //to acount for seconds
+        user.missingDuration = data.entities.agenda_entry[0].value;
+      }
+      if(newRoutine.routine === null || newRoutine.routine === undefined){ // data.entities.location === 'undefined'
+          console.log("Agenda undefined")
+          user.state = 2
+          user.prevState = 1;
+          return {user, messageSend: prompts.SETUP("Woops, either you forgot to include a routine or I didn't pick up on that?")}
+      }
+      if(newRoutine.duration === null || newRoutine.duration === undefined){
+          user.state = 2
+          user.prevState = 1;
+          console.log("Duration undefined")
+          return {user, messageSend: prompts.SETUP("For how long? 5 minutes, half an hour...?")}
+      }
+      else{
+        var status = "Awesome!"
+        user.routine.push(newRoutine)
+        user.state = user.prevState;
+        user.prevState = null;
+        console.log("ROUTINE", newRoutine)
+      }
+      user.missingRoutine = null;
+      user.missingDuration = null;
       return {
         user: user,
-        messageSend: ["Your Routine has been added"]
+        messageSend:  ["Your Routine " + newRoutine.routine + " for " + newRoutine.duration + " minutes has been added"]
       }
     },
+    
+     105:  function(user, messageReceived, data) {
+      user.state = user.prevState; //remembers where you were before menu
+      user.prevState = null; 
+      var CHANGE_TIME = prompts.CHANGE_TIME;
+      CHANGE_TIME += user.timeToWakeUp;
+      
+      user.timeToWakeUp.hour = new Date(data.entities.datetime[0].values[0].value).getHours();
+      user.timeToWakeUp.minute = new Date(data.entities.datetime[0].values[0].value).getMinutes();
+      user.timeToWakeUp.time = user.timeToWakeUp.hour+":"+user.timeToWakeUp.minute;
+
+      return {
+        user,
+        messageSend: [CHANGE_TIME_REFLECTION]
+      }
+    },
+    
 }
 
 // function randomCode() {
@@ -512,7 +581,7 @@ var stateHandlers = {
 //   return Math.floor(Math.random() * (max - min + 1)) + min;
 // }
 
-// // Ethan Debug
+// Ethan Debug
 // app.post('/webhook', (req, res) => {
 //   res.send('ethan debug complete :-)')
 // })
@@ -548,6 +617,7 @@ app.get('/sendScheduled', (req, res, next) => {
         user.state = 17
         sendTextMessages({user, messageSend: prompts.ASK_REFLECTION_QUESTIONS})
       }
+      user.save(function(err) {console.log(err)})
     })
   })
 });
@@ -575,6 +645,7 @@ app.post('/webhook/', function(req, res){
       return new Promise(function(resolve, reject){
         wit.message(messageReceived, {})
         .then((data) => {
+          console.log('WIT DATA------', data)
           req.witData = data;
           resolve(user)
         })
@@ -654,17 +725,32 @@ app.post('/webhook/', function(req, res){
         user.routineCopy = user.routineCopy.slice();
       }
       //when user click on 'finish'
-      if (user.routineCopy.indexOf(messageReceived) !== -1) {
-        var index = user.routineCopy.indexOf(messageReceived)
-        user.routineCopy.splice(index, 1)
-        user.save(function(err) {console.log('err from saving routine',err)})
-        if (halfTime || fullTime) {
-          clearTimeout(halfTime)
-          clearTimeout(fullTime)
+      var index;
+      var duration;
+      for (var i = 0; i < user.routineCopy.length; i ++) {
+        if (messageReceived === user.routineCopy[i].routine) {
+          user.routineCopy.splice(index, 1)
+          console.log('CURRENT ROUTINE', user.routineCopy)
+          user.save(function(err) {console.log('err from saving routine',err)})
         }
-      }
+        if (halfTime || fullTime) {
+            clearTimeout(halfTime)
+            clearTimeout(fullTime)
+        }
+     }
+      // if (user.routineCopy.indexOf(messageReceived) !== -1) {
+      //   console.log('FINISH ROUTINE IS CALLED')
+      //   var index = user.routineCopy.indexOf(messageReceived)
+      //   user.routineCopy.splice(index, 1)
+      //   console.log('CURRENT ROUTINE', user.routineCopy)
+      //   user.save(function(err) {console.log('err from saving routine',err)})
+      //   if (halfTime || fullTime) {
+      //     clearTimeout(halfTime)
+      //     clearTimeout(fullTime)
+      //   }
+      // }
       //when the user start the routine
-      else if (messageReceived.slice(0, 5) === 'start'){
+      if (messageReceived.slice(0, 5) === 'begin'){
         //need time for the routine
         var index;
         var duration;
@@ -679,7 +765,7 @@ app.post('/webhook/', function(req, res){
         fullTime = setTimeout(function() {
             sendTextMessages({user, messageSend: ['Time up']})
             user.routineCopy.splice(index, 1);
-            sendMorningRoutine(handle, user.routineCopy, handle.messageSend, 'start', 'finish')
+            sendMorningRoutine(handle, user.routineCopy, handle.messageSend, 'begin', 'finish')
             user.save(function(err) {console.log('err from saving routine',err)})
           
         }, duration * 60 * 1000);
@@ -689,14 +775,6 @@ app.post('/webhook/', function(req, res){
       }
       /*END OF MORNING ROUTINE*/
       
-      /*TASK MANAGEMENT*/
-      if (user.tasks.indexOf(messageReceived) !== -1) {
-        var index = user.tasks.indexOf(messageReceived)
-        user.tasks.splice(index, 1)
-        user.save(function(err) {console.log('err from saving routine',err)})
-      }
-      /*END OF TASK MANAGEMENT*/
-      
       /*START OF PAM RESPONSE*/
       if (! handler) {
         throw new Error("Can't handle state: " + user.state);
@@ -704,30 +782,34 @@ app.post('/webhook/', function(req, res){
       if (user.state >= 100) {
         return sendTextMessages(handle);
       }
+      else if ((user.state === 15 && user.prevState === 13) 
+        || (user.state === 15 && user.prevState === 15)) {
+        if (user.tasks.length === 0) console.log("this will error, because there are no tasks\nenable ethan debug to continue")
+        return sendMultiButton(handle, user.tasks, handle.messageSend, 'start', 'finish')
+      }
       //changed to 2 after we incremented the state
       else if (user.prevState === 2 || user.prevState === 7 || user.prevState === 10 || user.prevState === 14) {
         // console.log("attempting a sendButton with ", handle.messageSend);
         console.log("Sending button: ", handle);
+        console.log("user.tasks, again", handle.user.tasks)
         return sendButton(handle)
       //send a video
-      } else if (user.prevState === 6 || user.state === 16) {
+      } else if (user.state === 16 || user.prevState === 6) {
       //the video here will be randomly generated later
         return sendVideo(handle, 'http://clips.vorwaerts-gmbh.de/VfE_html5.mp4', handle.messageSend)
       } else if (user.prevState === 8 && user.state === 8) {
         // if (user.routineCopy.length) {
-        return sendMorningRoutine(handle, user.routineCopy, handle.messageSend, 'start', 'finish')
+        return sendMorningRoutine(handle, user.routineCopy, handle.messageSend, 'begin', 'finish')
         // } else {
         //   user.prevState = 8;
         //   user.state = 9;
           // return sendTextMessages({user, messageSend: ['hi']})
           //how can i trigger again?? 
         // }
-      } else if (user.prevState === 8 && user.state === 9) {
+      } else if (user.prevState === 8 && user.state === 10) {
         return sendVideo(handle, 'http://clips.vorwaerts-gmbh.de/VfE_html5.mp4', handle.messageSend)
 
-      } else if (user.state === 15 && user.prevState === 13 || user.state === 15 && user.prevState === 15) {
-        return sendMultiButton(handle, user.tasks, handle.messageSend, 'start', 'finish')
-      }
+      } 
       if (user.state === 16) {
         console.log(handle);
       }
@@ -775,11 +857,6 @@ var sendTextMessages = function(resp) {
       } else if (resp.messageSend.length) {
         var message = resp.messageSend[0];
         resp.messageSend = resp.messageSend.slice(1);
-<<<<<<< HEAD
-        console.log("[resp]", resp);
-        console.log("RESP USER FACEBOOKID===",resp.user.facebookId);
-=======
->>>>>>> master
         request({
           url: 'https://graph.facebook.com/v2.6/me/messages',
           qs: {access_token: TOKEN},
@@ -892,12 +969,6 @@ function sendVideo(resp, url, text) {
   })
 }
 
-<<<<<<< HEAD
-  console.log("EVENT MESSAGE", event.message)
-  if (event.postback) {
-    messageReceived = event.postback.payload
-  } messageReceived = event.message.text;
-=======
 //sendMultiButton creates a message with multiple buttons of the tasks/routines in the array
 function sendMorningRoutine(resp, arr, text, buttonTitle1, buttonTitle2) {
   return new Promise(function(resolve, reject) {
@@ -915,7 +986,7 @@ function sendMorningRoutine(resp, arr, text, buttonTitle1, buttonTitle2) {
       var el = {
         "title": element.routine,
         // "subtitle": "Element #1 of an hscroll",
-        "image_url": ["https://www.google.com/search?tbm=isch&tbs=rimg%3ACXHMb9n6z7SyIjjeK7mbD6gNxQKR_12y7Z-aoJJaUAKwBs4lYZyqGjaXQpbbVLp1TAZ7nIWKW5gRSbwyk1cWOjky-HioSCd4ruZsPqA3FEd76M4RhVOE-KhIJApH_1bLtn5qgRnb9IcLU2PxYqEgkklpQArAGziRG_1EV3d0I6FaSoSCVhnKoaNpdClEWVxtRFNNJhJKhIJttUunVMBnucREpLUgC_1Khu8qEgkhYpbmBFJvDBEwaJcGo93jXioSCaTVxY6OTL4eEa5LFTHbsWMp&q&safe=off&bih=538&biw=1160&ved=0ahUKEwig4u2Er4fOAhVCdD4KHfVICGUQ9C8ICQ&dpr=2#imgrc=ccxv2frPtLJRaM%3A","https://www.google.com/imgres?imgurl=http%3A%2F%2Fcdn.imgs.steps.dragoart.com%2Fhow-to-draw-tea-tea-step-4_1_000000075607_3.jpg&imgrefurl=http%3A%2F%2Fwww.dragoart.com%2Ftuts%2F9808%2F1%2F1%2Fhow-to-draw-tea%2C-tea.htm&docid=RmUrTnF24ln_BM&tbnid=iZnj25OOXvemOM%3A&w=302&h=302&safe=off&bih=661&biw=1425&ved=0ahUKEwjRuOq_r4fOAhWGVz4KHfrPDvoQMwgcKAAwAA&iact=mrc&uact=8","https://www.google.com/search?q=yoga&safe=off&source=lnms&tbm=isch&sa=X&ved=0ahUKEwjp-arSrofOAhXKcD4KHQ-7Di4Q_AUICCgB&biw=1425&bih=661#tbm=isch&tbs=rimg%3ACXem7rAZ9MXUIjiinVaidzwvmiAF3uUyKw5UWPzA5jsKA2fPuP7ooYDLQz0Py5jjU79155BOBPa6dw7yAEgDeZrAJioSCaKdVqJ3PC-aEbuiqB26eJMBKhIJIAXe5TIrDlQRvd7UC7SfHy4qEglY_1MDmOwoDZxGJVzHDSbK6kSoSCc-4_1uihgMtDEf0ddECmU93kKhIJPQ_1LmONTv3UREGq7exEHMsAqEgnnkE4E9rp3DhG_1YKi25oTYlSoSCfIASAN5msAmEYlXMcNJsrqR&q=yoga%20drawing&safe=off&imgrc=d6busBn0xdRENM%3A"][i],
+        "image_url": ["http://blog.myvirtualyoga.com/wp-content/uploads/2015/02/meditation-pose-drawing.jpg","http://workoutlabs.com/wp-content/uploads/watermarked/Wide_Pushup1.png","http://cdn.imgs.steps.dragoart.com/how-to-draw-tea-tea-step-4_1_000000075607_3.jpg"][i],
         "buttons": [{
           'type': 'postback',
           'payload': buttonTitle1 + element.routine,
@@ -947,7 +1018,6 @@ function sendMorningRoutine(resp, arr, text, buttonTitle1, buttonTitle2) {
     })
   })
 }
->>>>>>> master
 
 function sendMultiButton(resp, arr, text, buttonTitle1, buttonTitle2) {
   return new Promise(function(resolve, reject) {
@@ -961,18 +1031,18 @@ function sendMultiButton(resp, arr, text, buttonTitle1, buttonTitle2) {
         }
       }
     }
-    arr.forEach(function(element) {
+    arr.forEach(function(element, i) {
       var el = {
         "title": element,
         // "subtitle": "Element #1 of an hscroll",
-        "image_url": "http://cdn1.bostonmagazine.com/wp-content/uploads/2013/10/mornign-yoga-main.jpg",
+        "image_url": ["http://blog.myvirtualyoga.com/wp-content/uploads/2015/02/meditation-pose-drawing.jpg","http://workoutlabs.com/wp-content/uploads/watermarked/Wide_Pushup1.png","http://cdn.imgs.steps.dragoart.com/how-to-draw-tea-tea-step-4_1_000000075607_3.jpg"][i],
         "buttons": [{
           'type': 'postback',
           'payload': buttonTitle1,
           'title': buttonTitle1
         },{
           'type': 'postback',
-          'payload': element,
+          'payload': buttonTitle2 + i,
           'title': buttonTitle2
         }]
       }
@@ -1012,9 +1082,11 @@ function sendButtons(resp, arr, buttonArray) {
       }
     }
     arr.forEach(function(element, i) {
+      console.log("Ethan Debug", element.routine);
       var el = {
         "title": element.routine,
-        "image_url": "http://cdn1.bostonmagazine.com/wp-content/uploads/2013/10/mornign-yoga-main.jpg",
+        //images displaying in the routine menu
+        "image_url": ["http://blog.myvirtualyoga.com/wp-content/uploads/2015/02/meditation-pose-drawing.jpg","http://workoutlabs.com/wp-content/uploads/watermarked/Wide_Pushup1.png","http://cdn.imgs.steps.dragoart.com/how-to-draw-tea-tea-step-4_1_000000075607_3.jpg"][i],
         buttons: buttonArray.map((button) => {
             return {
               type: 'postback',
@@ -1053,7 +1125,7 @@ function checkForMenu(user, messageReceived) {
     user.state = 100;
       ret = {
         user,
-        messageSend: ["Your current wake up time is " + user.timeToWakeUp + ". What time do you want it to be?"] //fix
+        messageSend: ["Your current wake up time is " + user.timeToWakeUp.time + ". What time do you want it to be?"] //fix
       }
     } 
      else if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_CITY") {
@@ -1085,9 +1157,10 @@ function checkForMenu(user, messageReceived) {
     else if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_REFLECTION") {
       
       user.prevState = user.state; // remember the state you were before opening menu
+      user.state = 105;
       ret = {
         user,
-        messageSend: ["ohai"]
+        messageSend: ["Your current reflection time is " + user.reflectionTime.hour.default + ". What time do you want it to be?"]
       }
     }
     
