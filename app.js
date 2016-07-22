@@ -155,7 +155,8 @@ var prompts = {
   "SAVE_REFLECTION_QUESTION" : ["Thank you, your reflection has been saved.", "Check out your memories at www.x.com"],
   "ERROR" : ["Please setup your profile before changing your preferences"],
   "CHANGE_TIME": ["Gotcha. I've updated your wakeup time to: "],
-  "CHANGE_CITY" : ["Gotcha. I've updated your city to: "]
+  "CHANGE_CITY" : ["Gotcha. I've updated your city to: "],
+  'GREAT': ['Great!']
 }
 
 app.get('/', function(req, res) {
@@ -310,13 +311,16 @@ var stateHandlers = {
     //if the user has finished morning routine
       if (!user.routineCopy.length) {
         user.state = 9
-        return;
+        return {
+        user: user,
+        messageSend: prompts.DONE_DAILY_ROUINE
+       }
       } else {
         return {
         user: user,
         messageSend: prompts.START_MORNING_ROUTINE
-      }
-      }
+    }
+  }
 
 
     }, //ask again until finished
@@ -325,7 +329,7 @@ var stateHandlers = {
       user.state = 10
       return {
         user: user,
-        messageSend: prompts.DONE_DAILY_ROUINE
+        messageSend: prompts.GREAT
       }
     }, // give a reward
   // START_WORKING
@@ -338,7 +342,7 @@ var stateHandlers = {
     },
   // DONE_WORKING
     11: function(user, messageReceived) {
-      user.state = 13
+      user.state = 16
       return {
         user: user,
         messageSend: prompts.DONE_WORKING
@@ -389,9 +393,12 @@ var stateHandlers = {
     15: function(user, messageReceived) {
     //if the user has finished all the tasks
       if (!user.tasks.length) {
-        user.state = 11
+        user.state = 16
+        return {
+          user: user,
+          messageSend: prompts.DONE_WORKING
+        }
       }
-      user.state = 15;
       return {
         user: user,
         messageSend: prompts.SHOW_TASKS
@@ -405,7 +412,7 @@ var stateHandlers = {
       // user.reflectionQuestion =
       return {
         user: user,
-        messageSend: user.reflectionQuestion
+        messageSend: [user.reflectionQuestion]
       }
     },
     // SAVE_REFLECTION_QUESTION
@@ -422,9 +429,9 @@ var stateHandlers = {
           //   "credit": String
           // },
           "start_date": {
-            "month": date.getMonths() + 1,
-            "day": date.getDays(),
-            "year": date.getYears()
+            "month": date.getMonth() + 1,
+            "day": date.getDay(),
+            "year": date.getYear()
           },
           "text": {
             "headline": user.reflectionQuestion,
@@ -432,6 +439,7 @@ var stateHandlers = {
           }
         }
       )
+      user.save()
       return {
         user: user,
         messageSend: prompts.SAVE_REFLECTION_QUESTION
@@ -637,6 +645,8 @@ app.post('/webhook/', function(req, res){
       /*MANAGE MORNING ROUTINE*/
       //create a copy of routine in the user model
       //slice the one with the same handle
+      var halfTime;
+      var fullTime;
       if (user.routineCopy.length === 0 && user.state === 8) {
         user.routineCopy = user.routine.slice();
       } else {
@@ -647,7 +657,7 @@ app.post('/webhook/', function(req, res){
         var index = user.routineCopy.indexOf(messageReceived)
         user.routineCopy.splice(index, 1)
         user.save(function(err) {console.log('err from saving routine',err)})
-        if (time) {
+        if (halfTime || fullTime) {
           clearTimeout(halfTime)
           clearTimeout(fullTime)
         }
@@ -655,7 +665,6 @@ app.post('/webhook/', function(req, res){
       //when the user start the routine
       else if (messageReceived.slice(0, 5) === 'start'){
         //need time for the routine
-        console.log("ROUTINE TIMER")
         var index;
         var duration;
         for (var i = 0; i < user.routineCopy.length; i ++) {
@@ -664,10 +673,9 @@ app.post('/webhook/', function(req, res){
             index = i;
           }
         }
-        console.log("DURATION-----",duration)
-         sendTextMessages({user, messageSend: ['Timer starts now! You have '+user.routineCopy[index].duration+" minutes left..."]})
-        var halfTime = setTimeout(() => sendTextMessages({user, messageSend: [duration/2 + ' minutes left']}), duration/2 * 60 * 1000)
-        var fullTime = setTimeout(function() {
+        sendTextMessages({user, messageSend: ['Timer starts now! You have '+user.routineCopy[index].duration+" minutes left..."]})
+        halfTime = setTimeout(() => sendTextMessages({user, messageSend: [duration/2 + ' minutes left']}), duration/2 * 60 * 1000)
+        fullTime = setTimeout(function() {
             sendTextMessages({user, messageSend: ['Time up']})
             user.routineCopy.splice(index, 1);
             sendMorningRoutine(handle, user.routineCopy, handle.messageSend, 'start', 'finish')
@@ -679,6 +687,14 @@ app.post('/webhook/', function(req, res){
         return  handle
       }
       /*END OF MORNING ROUTINE*/
+
+      /*TASK MANAGEMENT*/
+      if (user.tasks.indexOf(messageReceived) !== -1) {
+        var index = user.tasks.indexOf(messageReceived)
+        user.tasks.splice(index, 1)
+        user.save(function(err) {console.log('err from saving routine',err)})
+      }
+      /*END OF TASK MANAGEMENT*/
 
       /*START OF PAM RESPONSE*/
       if (! handler) {
@@ -693,7 +709,7 @@ app.post('/webhook/', function(req, res){
         console.log("Sending button: ", handle);
         return sendButton(handle)
       //send a video
-      } else if (user.prevState === 6 || user.prevState === 11) {
+      } else if (user.prevState === 6 || user.state === 16) {
       //the video here will be randomly generated later
         return sendVideo(handle, 'http://clips.vorwaerts-gmbh.de/VfE_html5.mp4', handle.messageSend)
       } else if (user.prevState === 8 && user.state === 8) {
@@ -708,8 +724,11 @@ app.post('/webhook/', function(req, res){
       } else if (user.prevState === 8 && user.state === 9) {
         return sendVideo(handle, 'http://clips.vorwaerts-gmbh.de/VfE_html5.mp4', handle.messageSend)
 
-      } else if (user.state === 15 && user.prevState === 13) {
+      } else if (user.state === 15 && user.prevState === 13 || user.state === 15 && user.prevState === 15) {
         return sendMultiButton(handle, user.tasks, handle.messageSend, 'start', 'finish')
+      }
+      if (user.state === 16) {
+        console.log(handle);
       }
       return sendTextMessages(handle)
     })
@@ -880,11 +899,11 @@ function sendMorningRoutine(resp, arr, text, buttonTitle1, buttonTitle2) {
         }
       }
     }
-    arr.forEach(function(element) {
+    arr.forEach(function(element, i) {
       var el = {
         "title": element.routine,
         // "subtitle": "Element #1 of an hscroll",
-        "image_url": "http://cdn1.bostonmagazine.com/wp-content/uploads/2013/10/mornign-yoga-main.jpg",
+        "image_url": ["https://www.google.com/search?tbm=isch&tbs=rimg%3ACXHMb9n6z7SyIjjeK7mbD6gNxQKR_12y7Z-aoJJaUAKwBs4lYZyqGjaXQpbbVLp1TAZ7nIWKW5gRSbwyk1cWOjky-HioSCd4ruZsPqA3FEd76M4RhVOE-KhIJApH_1bLtn5qgRnb9IcLU2PxYqEgkklpQArAGziRG_1EV3d0I6FaSoSCVhnKoaNpdClEWVxtRFNNJhJKhIJttUunVMBnucREpLUgC_1Khu8qEgkhYpbmBFJvDBEwaJcGo93jXioSCaTVxY6OTL4eEa5LFTHbsWMp&q&safe=off&bih=538&biw=1160&ved=0ahUKEwig4u2Er4fOAhVCdD4KHfVICGUQ9C8ICQ&dpr=2#imgrc=ccxv2frPtLJRaM%3A","https://www.google.com/imgres?imgurl=http%3A%2F%2Fcdn.imgs.steps.dragoart.com%2Fhow-to-draw-tea-tea-step-4_1_000000075607_3.jpg&imgrefurl=http%3A%2F%2Fwww.dragoart.com%2Ftuts%2F9808%2F1%2F1%2Fhow-to-draw-tea%2C-tea.htm&docid=RmUrTnF24ln_BM&tbnid=iZnj25OOXvemOM%3A&w=302&h=302&safe=off&bih=661&biw=1425&ved=0ahUKEwjRuOq_r4fOAhWGVz4KHfrPDvoQMwgcKAAwAA&iact=mrc&uact=8","https://www.google.com/search?q=yoga&safe=off&source=lnms&tbm=isch&sa=X&ved=0ahUKEwjp-arSrofOAhXKcD4KHQ-7Di4Q_AUICCgB&biw=1425&bih=661#tbm=isch&tbs=rimg%3ACXem7rAZ9MXUIjiinVaidzwvmiAF3uUyKw5UWPzA5jsKA2fPuP7ooYDLQz0Py5jjU79155BOBPa6dw7yAEgDeZrAJioSCaKdVqJ3PC-aEbuiqB26eJMBKhIJIAXe5TIrDlQRvd7UC7SfHy4qEglY_1MDmOwoDZxGJVzHDSbK6kSoSCc-4_1uihgMtDEf0ddECmU93kKhIJPQ_1LmONTv3UREGq7exEHMsAqEgnnkE4E9rp3DhG_1YKi25oTYlSoSCfIASAN5msAmEYlXMcNJsrqR&q=yoga%20drawing&safe=off&imgrc=d6busBn0xdRENM%3A"][i],
         "buttons": [{
           'type': 'postback',
           'payload': buttonTitle1 + element.routine,
