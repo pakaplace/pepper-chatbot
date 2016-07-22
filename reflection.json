@@ -1,0 +1,30 @@
+{
+  "title": {
+      "media": {
+        "url": String,
+        "caption": String,
+        "credit": String"
+      },
+      "text": {
+        "headline": String,
+        "text": String
+  },
+  "events": [
+    {
+      "media": {
+        "url": String,
+        "caption": String,
+        "credit": String
+      },
+      "start_date": {
+        "month": String,
+        "day": String,
+        "year": String
+      },
+      "text": {
+        "headline": String,
+        "text": String
+      }
+    }
+  ]
+}
