@@ -137,7 +137,7 @@ var prompts = {
           "type": "template",
           "payload": {
               "template_type": "button",
-              "text": 'Add another task?',
+              "text": 'Shall I add another task?',
               "buttons": [{
                     "type": "postback",
                     "payload": 'yes',
