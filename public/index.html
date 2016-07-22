@@ -1,0 +1,231 @@
+<!doctype html>
+<html>
+  
+<!-- Mirrored from hellojam.fr/ by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 21 Jul 2016 15:03:03 GMT -->
+<head>
+    <meta charset="utf-8">
+
+
+    <script src="emojify.js"></script>
+
+    <!-- Always force latest IE rendering engine or request Chrome Frame -->
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width">
+
+    <!-- FIXME -->
+    <meta property="og:title" content="Jam | Tout ce que tu veux en un texto" />
+    <meta property="og:description" content="Jam répond aux besoins quotidiens des étudiants par SMS" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Hello Jam" />
+    <meta property="og:url" content="/" />
+    <meta property="og:image" content="https://assets.hellojam.fr/cover.png" />
+
+    <meta property="fb:admins" content="618976068" />
+    <meta property="fb:admins" content="1575189552" />
+
+    <link rel="icon" type="image/png" href="images/favicon-pam.gif" />
+
+    <!-- Use title if it's in the page YAML frontmatter -->
+    <title>Jam | Tout ce que tu veux en un texto</title>
+    <link href="stylesheets/application-b7fa503f.css" rel="stylesheet" async="true" />
+  </head>
+
+  <body class="index">
+    <!-- Modal -->
+<div class="modal fade" id="myModal" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+     </div>
+      <div class="modal-body">
+        <h3>Tu recevras un texto dans quelques minutes 🤗</h3>
+        <h5>Pour que Jam soit plus pertinent, peux-tu renseigner ton école ?</h5>
+        <form id="extra_informations">
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1"><i class="fa fa-university"></i></span>
+            <select class="school form-control">
+              <option></option>
+            </select>
+          </div>
+          <div style="margin-top: 15px" class="input-group">
+            <span class="input-group-addon" id="basic-addon1"><i class="fa fa-graduation-cap"></i></span>
+            <select class="diploma form-control">
+              <option></option>
+            </select>
+          </div>
+          <br>
+          <button data-submit="extra_informations" type="submit" class="btn modal-button modal-button-success">Envoyer</button>
+          <span class="or">ou</span>
+          <button type="button" class="btn btn-default modal-button" data-dismiss="modal">Je ne donne pas mon école</button>
+        </form>
+      </div>
+      <div class="modal-footer">Si tu ne reçois pas de message de Jam, envoie HELLO au <span data-phone>06.44.63.04.04</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid">
+  <div class="row main">
+    <div class="col-md-6 col-xs-12 col-sm-12">
+      <div class="logo-wrapper">
+        <img class="logo" src="images/logo-pam.gif" style="width:300px;height:120px" />
+      </div>
+      <h1 class="headline">
+        Pam helps you
+        <div class="carousel">
+          <div>be more productive</div>
+        </div>
+        through Messenger, <span>for free.</span>
+        </h1>
+        <form id="user_registration" class="hidden-xs hidden-sm form-inline form-registration">
+
+     <!--    <div class="fb-messengermessageus" 
+          messenger_app_id="147413245662995" 
+          page_id="EAACGElIklxMBAOlhU5LW4HWKULqZAUxY14A5HGStslnd0RePVJfol4MDZC8eFxeQb0niqdOSdQtHVxy7jQZCQoeG93ZCBYZB8WwRDUZBF8z0BKNPNkZC8zmErY4IXFeIv26nXj7J72Ns7ZBzQJuULJnBUW4XKU077d83YoZBNlKdlBwZDZD"
+          color="blue"
+          size="standard" >
+        </div>  --> 
+        <a href="https://www.messenger.com/t/pamchatbot">
+          <img src="images/boutons-send-to-messenger.gif" style="width:300px;height:100px" href="https://www.facebook.com/pamchatbot/"></img>
+        </a>
+
+
+        <!--   <p>
+            <input type="text" class="user_phone form-control input-lg" placeholder="Ton numéro de téléphone" />
+            <input type="hidden" class="referrer_id" />
+            <button class="btn btn-default btn-lg" data-submit="user_registration" type="submit"><i class="fa fa-paper-plane"></i></button>
+          </p> -->
+        </form>
+          <p class="registration-success text-success" style="display: none">
+            Jam te contactera dans quelques secondes !
+          </p>
+        <form class="visible-xs visible-sm">
+          <a href="#" data-sms="HELLO" id="main-cta" class="btn btn-default btn-lg btn-number">Envoie HELLO au <span data-phone>06.44.63.04.04</span></a>
+        </form>
+      </div>
+      <div class="col-md-6 hidden-xs hidden-sm messages-wrapper">
+        <div class="messages helvetica">
+          <div class="message animated to">
+            Bonsoir
+          </div>
+        </div>
+      </div>
+      <div class="arrow-wrapper col-md-12 col-sm-12 hidden-xs">
+        <i class="arrow glyphicon glyphicon-chevron-down"></i>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12 col-xs-12 how bg-black-color">
+        <h1>Pam is a personal assistant that helps you fulfill your goals.</h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2 faq-content">
+        <h1>About</h1>
+
+        <h3>Pam is totally free and can help you:</h3>
+        <p>
+          Wake up, Do your morning routine, Complete daily tasks, Write personal reflections<br>
+          </p>
+
+        <h3>Incentive</h3>
+        <p>
+          Pam rewards you at each step to keep you motivated.
+        </p>
+
+        <h3>Working hours </h3>
+        <p>
+          Pam is your personal robot assistant, working 24/7.
+
+        <h3>How to unsubscribe?</h3>
+
+        <p>
+          Send <em>STOP</em>, and your account will be shut down.
+          All your profile informations will be deleted.
+        </p>
+
+        <h3>Data Privacy</h3>
+
+        <p>
+          Your data is only used to know and help you better. They will never be sold or transfered.
+        </p>
+      </div>
+    </div>
+
+    <div class="row footer" id="footer">
+    <div class="col-md-12 col-xs-12">
+      <div class="row footer-link">
+        <div class="col-md-12 social">
+          <h1>Pam</h1>
+          <div class="row social-link">
+            <a href="https://www.facebook.com/pamchatbot" target="_blank">
+              <div class="background-img">
+                <i class="fa fa-facebook"></i>
+              </div>
+            </a>
+          </div>
+     
+        </div>
+      </div>
+    <div class="row footer-info">
+      <div class="col-sm-12 col-xs-12 col-md-12">
+        <p><a href="mailto:louisbiret@gmail.com">CONTACT US !</a></p>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </div>
+</div>
+
+<div class="fixed-footer show-xs hidden-lg hidden-md hidden-sm">
+  <div class="fixed-footer-wrapper">
+    <a href="#" data-sms="HELLO" class="btn btn-default">
+      Envoie HELLO au <span data-phone>06.44.63.04.04</span>
+    </a>
+  </div>
+</div>
+
+  </body>
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','http://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-71418441-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+<script type="text/javascript">
+  !function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","page","once","off","on"];analytics.factory=function(t){return function(){var e=Array.prototype.slice.call(arguments);e.unshift(t);analytics.push(e);return analytics}};for(var t=0;t<analytics.methods.length;t++){var e=analytics.methods[t];analytics[e]=analytics.factory(e)}analytics.load=function(t){var e=document.createElement("script");e.type="text/javascript";e.async=!0;e.src=("https:"===document.location.protocol?"https://":"http://")+"cdn.segment.com/analytics.js/v1/"+t+"/analytics.min.js";var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(e,n)};analytics.SNIPPET_VERSION="3.1.0";
+    analytics.load("eLc5ecPmywhd6a8yOkcXAL3rxL63EI25");
+  }}();
+</script>
+<script>
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','http://connect.facebook.net/en_US/fbevents.js');
+
+  fbq('init', "189925194700492");
+  fbq('track', "PageView");
+</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=189925194700492&amp;ev=PageView&amp;noscript=1"/></noscript>
+<noscript><iframe src="http://www.googletagmanager.com/ns.html?id=189925194700492"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'http://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','189925194700492');</script></noscript>
+
+<script src="javascripts/application-4b0db81a.js" async=""></script>
+<script>emojify.run()</script>
+
+<!-- Mirrored from hellojam.fr/ by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 21 Jul 2016 15:03:04 GMT -->
+</html>
