@@ -1,13 +1,7 @@
 'use strict'
-<<<<<<< HEAD
 // ___________________ 
 // < MOJIA LOVES TRUMP >
 // ------------------- 
-=======
-// ___________________
-// < MOJIA LOVES TRUMP >
-// -------------------
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
 //         \   ^__^
 //         \  (oo)\_______
 //            (__)\       )\/\
@@ -18,21 +12,14 @@ const bodyParser = require('body-parser')
 const request = require('request')
 const app = express()
 const TOKEN = process.env.FB_TOKEN
-<<<<<<< HEAD
 //wit 
-=======
-//wit
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
 const WIT_TOKEN = process.env.WIT_TOKEN
 const WitThing = require('node-wit');
 const wit = new WitThing.Wit({accessToken: WIT_TOKEN});
 
 var path = require('path');
 app.set('views', path.join(__dirname, 'views'));
-<<<<<<< HEAD
 app.use(express.static(path.join(__dirname, 'public')));
-=======
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
 app.set('view engine', 'hbs');
 
 app.set('port', 3000)
@@ -53,17 +40,10 @@ var prompts = {
     var arr = ["Meditation, pushups, tea? What's one thing you should you be doing every morning?",
              "For example, you could respond 'Meditation for 10 minutes', or... 'Read for 20 minutes'?"];
     if (errorMessage !== undefined) {
-<<<<<<< HEAD
         arr = [].concat(errorMessage).concat(arr) 
         console.log("Arr", arr);
         return arr
       } 
-=======
-        arr = [].concat(errorMessage).concat(arr)
-        console.log("Arr", arr);
-        return arr
-      }
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
     else{
       return ["Meditation, pushups, tea? What's one thing you should you be doing every morning?","For example, you could respond 'Meditation for 10 minutes', or... 'Read for 20 minutes'?"];
     }
@@ -99,13 +79,8 @@ var prompts = {
       return ['What time to you want me to wake up?']
     }
     else {
-<<<<<<< HEAD
       return [errorMessage,'What time to you want me to wake up?'] 
     }    
-=======
-      return [errorMessage,'What time to you want me to wake up?']
-    }
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
   },
   'FINISHEDSETUP': ["Your routine is X, We'll remind every X hours. If you'd like to change your settings at any time, send'menu'. You are set"],
   "DENYSETUP": ["Slow to rise, huh? You can always go back and add a routine later"],
@@ -178,11 +153,7 @@ var prompts = {
   },
   'SHOW_TASKS': ['Here is your tasklist! Wish you a productive day.'],
   'ASK_REFLECTION_QUESTIONS': ['How was your day?', "Who is an interesting person that you meet today?", 'Did you hear an interesting ideas?'],
-<<<<<<< HEAD
   // "SAVE_REFLECTION_QUESTION" : ["Thank you, your reflection has been saved.", 'Check out your reflection memories at www.pamchatbot.herokuapp.com/' + user._id],
-=======
-  "SAVE_REFLECTION_QUESTION" : ["Thank you, your reflection has been saved.", "Check out your memories at www.x.com"],
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
   "ERROR" : ["Please setup your profile before changing your preferences"],
   "CHANGE_TIME": ["Gotcha. I've updated your wakeup time to: "],
   "CHANGE_CITY" : ["Gotcha. I've updated your city to: "],
@@ -330,11 +301,7 @@ var stateHandlers = {
     },
   // START_DAILY_ROUTINE
     8: function(user, messageReceived) {
-<<<<<<< HEAD
     //from state 7 asking if you want to start morning routine 
-=======
-    //from state 7 asking if you want to start morning routine
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
       if (messageReceived === 'no') {
         user.state = 10 //start working
         return {
@@ -342,11 +309,7 @@ var stateHandlers = {
           messageSend: prompts.START_MORNING_ROUTINE
         }
       }
-<<<<<<< HEAD
     //if the user has finished morning routine 
-=======
-    //if the user has finished morning routine
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
       if (!user.routineCopy.length) {
         user.state = 9
         return {
@@ -359,13 +322,8 @@ var stateHandlers = {
         messageSend: prompts.START_MORNING_ROUTINE
     }
   }
-<<<<<<< HEAD
       
       
-=======
-
-
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
     }, //ask again until finished
   // DONE_DAILY_ROUINE
     9: function(user, messageReceived) {
@@ -406,11 +364,7 @@ var stateHandlers = {
         }
       }
     },
-<<<<<<< HEAD
     
-=======
-
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
   // ASK_FOR_TASKS
     13: function(user, messageReceived) {
       if (messageReceived === 'yes') {
@@ -422,20 +376,12 @@ var stateHandlers = {
       } else if (messageReceived === 'no') {
         user.state = 15
         return {
-<<<<<<< HEAD
           user, 
-=======
-          user,
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
           messageSend: prompts.SHOW_TASKS
         }
       }
     },
-<<<<<<< HEAD
   // ADD_ANOTHER_TASK yes or no 
-=======
-  // ADD_ANOTHER_TASK yes or no
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
     14: function(user, messageReceived) {
       user.tasks.push(messageReceived);
       user.state = 13
@@ -452,11 +398,7 @@ var stateHandlers = {
         return {
           user: user,
           messageSend: prompts.DONE_WORKING
-<<<<<<< HEAD
         } 
-=======
-        }
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
       }
       return {
         user: user,
@@ -468,11 +410,7 @@ var stateHandlers = {
       user.state = 17
       //choose a random reflection question
       user.reflectionQuestion = prompts.ASK_REFLECTION_QUESTIONS[Math.floor(Math.random()*prompts.ASK_REFLECTION_QUESTIONS.length)];
-<<<<<<< HEAD
       // user.reflectionQuestion = 
-=======
-      // user.reflectionQuestion =
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
       return {
         user: user,
         messageSend: [user.reflectionQuestion]
@@ -505,11 +443,7 @@ var stateHandlers = {
       user.save()
       return {
         user: user,
-<<<<<<< HEAD
         messageSend: ["Thank you, your reflection has been saved.", 'Check out your reflection memories at www.pam-bot.herokuapp.com/' + user._id]
-=======
-        messageSend: prompts.SAVE_REFLECTION_QUESTION
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
       }
     },
 
@@ -518,11 +452,7 @@ var stateHandlers = {
     100: function(user, messageReceived){ //fix
       user.timeToWakeUp = messageReceived
       user.state = user.prevState; //remembers where you were before menu
-<<<<<<< HEAD
       user.prevState = null; 
-=======
-      user.prevState = null;
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
       var CHANGE_TIME = prompts.CHANGE_TIME;
       CHANGE_TIME += user.timeToWakeUp;
         return {
@@ -532,11 +462,7 @@ var stateHandlers = {
     },
   // EDIT_CITY
     101: function(user, messageReceived){
-<<<<<<< HEAD
       user.city = messageReceived 
-=======
-      user.city = messageReceived
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
       // user.state = user.prevState; //remembers where you were before menu
       // user.prevState = 101;
       user.state = user.prevState
@@ -555,7 +481,6 @@ var stateHandlers = {
         return {
           user,
           messageSend: prompts.ADDROUTINE
-<<<<<<< HEAD
         } 
       } else if (messageReceived.indexOf("DELETE_ROUTINE") > -1){
       
@@ -563,15 +488,6 @@ var stateHandlers = {
         var deletedMessage = user.routine[index]
         user.routine.splice(index, 1)
       
-=======
-        }
-      } else if (messageReceived.indexOf("DELETE_ROUTINE") > -1){
-
-        var index = parseInt(messageReceived[messageReceived.length-1])
-        var deletedMessage = user.routine[index]
-        user.routine.splice(index, 1)
-
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
         return {
           user,
           messageSend: ["Your routine "+ deletedMessage +" has been deleted"]
@@ -585,11 +501,7 @@ var stateHandlers = {
       user.prevState = null;
       return {
         user: user,
-<<<<<<< HEAD
         messageSend: ["Your Routine has been added"]
-=======
-        messageSend: ["Your Routine has been added", 'Check out your reflection memories at www.pamchatbot.herokuapp.com/' + user._id]
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
       }
     },
 }
@@ -615,15 +527,9 @@ app.get('/reflection/:id', (req, res, next) => {
   })
 })
 
-<<<<<<< HEAD
 // app.get('/', (req, res, next) => {
 //   res.render('index')
 // })
-=======
-app.get('/', (req, res, next) => {
-  res.render('index')
-})
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
 
 app.get('/sendScheduled', (req, res, next) => {
   User.find(function(err, users) {
@@ -675,11 +581,7 @@ app.post('/webhook/', function(req, res){
       })
     })
     .then(function(user){
-<<<<<<< HEAD
       
-=======
-
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
       return new Promise((resolve, reject) => {
         request('https://graph.facebook.com/v2.6/'+user.facebookId+'?fields=first_name,\
         timezone,locale,gender&access_token='+TOKEN, (err, req, body) => {
@@ -701,22 +603,14 @@ app.post('/webhook/', function(req, res){
       console.log("+++++++User state+++++:", user.state)
       console.log("+++++++User prevState+++++:", user.prevState)
       if (user.state < 100) user.prevState = user.state;
-<<<<<<< HEAD
       
-=======
-
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
       /* BEGIN MENU MESSAGE HANDLING */
       var menuMessage = checkForMenu(user, messageReceived);
       if (menuMessage) {
         if (user.prevState < 6) {
           throw sendTextMessages({user, messageSend: prompts.ERROR})
         }
-<<<<<<< HEAD
         
-=======
-
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
         if (user.state === 102) {
           console.log("I AM IN STATE 200222222")
           sendButtons(menuMessage, user.routine, [
@@ -744,13 +638,8 @@ app.post('/webhook/', function(req, res){
       // if (typeof handler === 'promise')
       var handle = handler(user, messageReceived, req.witData); //add req.witData
       // console.log("Got to state " + handle.user.state)
-<<<<<<< HEAD
       
       
-=======
-
-
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
       ///////////////////// FOR DEBUG PURPOSES /////////////////////////////////
       // sendTextMessages({user, messageSend: ["[L492] You are in state " + user.state + ", coming from: " + user.prevState]});
 
@@ -786,17 +675,12 @@ app.post('/webhook/', function(req, res){
           }
         }
         sendTextMessages({user, messageSend: ['Timer starts now! You have '+user.routineCopy[index].duration+" minutes left..."]})
-<<<<<<< HEAD
         halfTime = setTimeout(() => sendTextMessages({user, messageSend: [duration/2 + ' minutes left']}), duration/2 * 60 * 1000) 
-=======
-        halfTime = setTimeout(() => sendTextMessages({user, messageSend: [duration/2 + ' minutes left']}), duration/2 * 60 * 1000)
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
         fullTime = setTimeout(function() {
             sendTextMessages({user, messageSend: ['Time up']})
             user.routineCopy.splice(index, 1);
             sendMorningRoutine(handle, user.routineCopy, handle.messageSend, 'start', 'finish')
             user.save(function(err) {console.log('err from saving routine',err)})
-<<<<<<< HEAD
           
         }, duration * 60 * 1000);
         console.log("handle",handle);
@@ -805,16 +689,6 @@ app.post('/webhook/', function(req, res){
       }
       /*END OF MORNING ROUTINE*/
       
-=======
-
-        }, duration * 60 * 1000);
-        console.log("handle",handle);
-
-        return  handle
-      }
-      /*END OF MORNING ROUTINE*/
-
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
       /*TASK MANAGEMENT*/
       if (user.tasks.indexOf(messageReceived) !== -1) {
         var index = user.tasks.indexOf(messageReceived)
@@ -822,11 +696,7 @@ app.post('/webhook/', function(req, res){
         user.save(function(err) {console.log('err from saving routine',err)})
       }
       /*END OF TASK MANAGEMENT*/
-<<<<<<< HEAD
       
-=======
-
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
       /*START OF PAM RESPONSE*/
       if (! handler) {
         throw new Error("Can't handle state: " + user.state);
@@ -850,11 +720,7 @@ app.post('/webhook/', function(req, res){
         //   user.prevState = 8;
         //   user.state = 9;
           // return sendTextMessages({user, messageSend: ['hi']})
-<<<<<<< HEAD
           //how can i trigger again?? 
-=======
-          //how can i trigger again??
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
         // }
       } else if (user.prevState === 8 && user.state === 9) {
         return sendVideo(handle, 'http://clips.vorwaerts-gmbh.de/VfE_html5.mp4', handle.messageSend)
@@ -964,18 +830,6 @@ function sendVideo(resp, url, text) {
             "url": url
           }
       }
-<<<<<<< HEAD
-    }
-    request({
-      url: 'https://graph.facebook.com/v2.6/me/messages',
-      qs: {access_token: TOKEN},
-      method: 'POST',
-      json: {
-        recipient: {id: resp.user.facebookId},
-        message: messageData
-      }
-    }, function(error, response, body) {
-=======
     }
     request({
       url: 'https://graph.facebook.com/v2.6/me/messages',
@@ -998,97 +852,6 @@ function sendVideo(resp, url, text) {
   })
 }
 
-//sendVideo takes resp, url, text to send a video
-function sendVideo(resp, url, text) {
-  return sendTextMessages(resp)
-  .then(function(resp) {
-    return new Promise(function(resolve, reject) {
-      var messageData = {
-        "attachment": {
-            "type": "video",
-            "payload": {
-              "url": url
-            }
-        }
-      }
-      request({
-        url: 'https://graph.facebook.com/v2.6/me/messages',
-        qs: {access_token: TOKEN},
-        method: 'POST',
-        json: {
-          recipient: {id: resp.user.facebookId},
-          message: messageData
-        }
-      }, function(error, response, body) {
-          if (error) {
-              console.log('Error sending messages: ', error)
-          } else if (response.body.error) {
-              console.log('Error: ', response.body.error)
-          } else {
-          //this is the callback and pass down resp
-            resolve(resp)
-          }
-      })
-    })
-  })
-}
-
-//sendMultiButton creates a message with multiple buttons of the tasks/routines in the array
-function sendMorningRoutine(resp, arr, text, buttonTitle1, buttonTitle2) {
-  return new Promise(function(resolve, reject) {
-    var messageData = {
-      "attachment": {
-        "type": "template",
-        "payload": {
-            "template_type": "generic",
-            // "text": text,
-            "elements": []
-        }
-      }
-    }
-    arr.forEach(function(element, i) {
-      var el = {
-        "title": element.routine,
-        // "subtitle": "Element #1 of an hscroll",
-        "image_url": ["https://www.google.com/search?tbm=isch&tbs=rimg%3ACXHMb9n6z7SyIjjeK7mbD6gNxQKR_12y7Z-aoJJaUAKwBs4lYZyqGjaXQpbbVLp1TAZ7nIWKW5gRSbwyk1cWOjky-HioSCd4ruZsPqA3FEd76M4RhVOE-KhIJApH_1bLtn5qgRnb9IcLU2PxYqEgkklpQArAGziRG_1EV3d0I6FaSoSCVhnKoaNpdClEWVxtRFNNJhJKhIJttUunVMBnucREpLUgC_1Khu8qEgkhYpbmBFJvDBEwaJcGo93jXioSCaTVxY6OTL4eEa5LFTHbsWMp&q&safe=off&bih=538&biw=1160&ved=0ahUKEwig4u2Er4fOAhVCdD4KHfVICGUQ9C8ICQ&dpr=2#imgrc=ccxv2frPtLJRaM%3A","https://www.google.com/imgres?imgurl=http%3A%2F%2Fcdn.imgs.steps.dragoart.com%2Fhow-to-draw-tea-tea-step-4_1_000000075607_3.jpg&imgrefurl=http%3A%2F%2Fwww.dragoart.com%2Ftuts%2F9808%2F1%2F1%2Fhow-to-draw-tea%2C-tea.htm&docid=RmUrTnF24ln_BM&tbnid=iZnj25OOXvemOM%3A&w=302&h=302&safe=off&bih=661&biw=1425&ved=0ahUKEwjRuOq_r4fOAhWGVz4KHfrPDvoQMwgcKAAwAA&iact=mrc&uact=8","https://www.google.com/search?q=yoga&safe=off&source=lnms&tbm=isch&sa=X&ved=0ahUKEwjp-arSrofOAhXKcD4KHQ-7Di4Q_AUICCgB&biw=1425&bih=661#tbm=isch&tbs=rimg%3ACXem7rAZ9MXUIjiinVaidzwvmiAF3uUyKw5UWPzA5jsKA2fPuP7ooYDLQz0Py5jjU79155BOBPa6dw7yAEgDeZrAJioSCaKdVqJ3PC-aEbuiqB26eJMBKhIJIAXe5TIrDlQRvd7UC7SfHy4qEglY_1MDmOwoDZxGJVzHDSbK6kSoSCc-4_1uihgMtDEf0ddECmU93kKhIJPQ_1LmONTv3UREGq7exEHMsAqEgnnkE4E9rp3DhG_1YKi25oTYlSoSCfIASAN5msAmEYlXMcNJsrqR&q=yoga%20drawing&safe=off&imgrc=d6busBn0xdRENM%3A"][i],
-        "buttons": [{
-          'type': 'postback',
-          'payload': buttonTitle1 + element.routine,
-          'title': buttonTitle1
-        },{
-          'type': 'postback',
-          'payload': element.routine,
-          'title': buttonTitle2
-        }]
-      }
-      messageData.attachment.payload.elements.push(el)
-    })
-    request({
-        url: 'https://graph.facebook.com/v2.6/me/messages',
-        qs: {access_token:TOKEN},
-        method: 'POST',
-        json: {
-            recipient: {id: resp.user.facebookId},
-            message: messageData,
-        }
-      }, function(error, response, body) {
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
-        if (error) {
-            console.log('Error sending messages: ', error)
-        } else if (response.body.error) {
-            console.log('Error: ', response.body.error)
-        } else {
-<<<<<<< HEAD
-        //this is the callback and pass down resp
-=======
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
-          resolve(resp)
-        }
-    })
-  })
-}
-
-<<<<<<< HEAD
 //sendVideo takes resp, url, text to send a video
 function sendVideo(resp, url, text) {
   return sendTextMessages(resp)
@@ -1317,151 +1080,6 @@ function checkForMenu(user, messageReceived) {
     }
     
     
-=======
-function sendMultiButton(resp, arr, text, buttonTitle1, buttonTitle2) {
-  return new Promise(function(resolve, reject) {
-    var messageData = {
-      "attachment": {
-        "type": "template",
-        "payload": {
-            "template_type": "generic",
-            // "text": text,
-            "elements": []
-        }
-      }
-    }
-    arr.forEach(function(element) {
-      var el = {
-        "title": element,
-        // "subtitle": "Element #1 of an hscroll",
-        "image_url": "http://cdn1.bostonmagazine.com/wp-content/uploads/2013/10/mornign-yoga-main.jpg",
-        "buttons": [{
-          'type': 'postback',
-          'payload': buttonTitle1,
-          'title': buttonTitle1
-        },{
-          'type': 'postback',
-          'payload': element,
-          'title': buttonTitle2
-        }]
-      }
-      messageData.attachment.payload.elements.push(el)
-    })
-    request({
-        url: 'https://graph.facebook.com/v2.6/me/messages',
-        qs: {access_token:TOKEN},
-        method: 'POST',
-        json: {
-            recipient: {id: resp.user.facebookId},
-            message: messageData,
-        }
-      }, function(error, response, body) {
-        if (error) {
-            console.log('Error sending messages: ', error)
-        } else if (response.body.error) {
-            console.log('Error: ', response.body.error)
-        } else {
-          resolve(resp)
-        }
-    })
-  })
-}
-
-//sendMultiButton creates a message with multiple buttons of the tasks/routines in the array
-function sendButtons(resp, arr, buttonArray) {
-  console.log(buttonArray);
-  return new Promise(function(resolve, reject) {
-    var messageData = {
-      "attachment": {
-        "type": "template",
-        "payload": {
-            "template_type": "generic",
-            "elements": []
-        }
-      }
-    }
-    arr.forEach(function(element, i) {
-      var el = {
-        "title": element.routine,
-        "image_url": "http://cdn1.bostonmagazine.com/wp-content/uploads/2013/10/mornign-yoga-main.jpg",
-        buttons: buttonArray.map((button) => {
-            return {
-              type: 'postback',
-              title: button.title,
-              payload: button.payload + i
-            }
-        })
-      }
-      messageData.attachment.payload.elements.push(el)
-    })
-    request({
-        url: 'https://graph.facebook.com/v2.6/me/messages',
-        qs: {access_token:TOKEN},
-        method: 'POST',
-        json: {
-            recipient: {id: resp.user.facebookId},
-            message: messageData,
-        }
-      }, function(error, response, body) {
-        if (error) {
-            console.log('Error sending messages: ', error)
-        } else if (response.body.error) {
-            console.log('Error: ', response.body.error)
-        } else {
-          resolve(resp)
-        }
-    })
-  })
-}
-
-function checkForMenu(user, messageReceived) {
-  var ret = null;
-  user.pr
-  if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_WAKEUP") {
-    user.prevState = user.state; // remember the state you were before opening menu
-    user.state = 100;
-      ret = {
-        user,
-        messageSend: ["Your current wake up time is " + user.timeToWakeUp + ". What time do you want it to be?"] //fix
-      }
-    }
-     else if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_CITY") {
-
-      user.prevState = user.state; // remember the state you were before opening menu
-      user.state = 101;
-      ret = {
-        user,
-        messageSend: ["Your current city is " + user.city + ". Which one do you want it to be?"]
-      }
-    }
-    else if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_ROUTINES") {
-
-      user.prevState = user.state; // remember the state you were before opening menu
-      user.state = 102;
-      ret = {
-        user,
-        messageSend: ["Your current routine is:"]
-      }
-    }
-    else if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_MESSAGE") {
-
-      user.prevState = user.state; // remember the state you were before opening menu
-      ret = {
-        user,
-        messageSend: ["Your message frequency is " + user.frequency + ". What do you want it to be?"]
-      }
-    }
-    else if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_REFLECTION") {
-
-      user.prevState = user.state; // remember the state you were before opening menu
-      ret = {
-        user,
-        messageSend: ["ohai"]
-      }
-    }
-
-
->>>>>>> d4405a10b693e04e3c5b7bc26b415c758c7cfb20
     return ret;
 }
 
