@@ -47,22 +47,6 @@ function mainExamples() {
     }]
 }
 
-function bacExamples() {
-    return [{
-        headline: "ce que tu veux",
-        messages: ["Hi PAM, what do you do?", "Je simplifie et \xe9gaye ton quotidien d'\xe9tudiant en r\xe9pondant \xe0 toutes tes demandes \ud83c\udfe1\ud83c\udf55\ud83c\udf79\ud83c\udf81", "Ok, et t'es un robot, c'est \xe7a ?", "A moiti\xe9 :)\nJe suis une Intelligence Artificielle supervis\xe9e par des humains pour r\xe9pondre aux \xe9tudiants"]
-    }, {
-        headline: "ton job \xe9tudiant",
-        messages: ["Jam j'ai plus une thune \ud83d\ude31 ... J'ai besoin d'un job \xe9tudiant ASAP", "N'importe o\xf9 dans Paris ?", "Oui, n'importe o\xf9", "J'ai beaucoup d'offres pour toi ! Voici la plus r\xe9cente : hij.am/petitjob3e493j"]
-    }, {
-        headline: "l'appart parfait",
-        messages: ["Je galere a trouver un studio proche de l'\xe9cole... Tu peux m'aider ?", "Yes ! Je t'ai d\xe9j\xe0 trouv\xe9 ces 3 offres \ud83c\udfe0 :\n- Marais, 800\u20ac : hij.am/appart8qi21fi8\n- R\xe9publique, 840\u20ac : hij.am/appart4gi2zx2\n- Sentier, 855\u20ac : hij.am/appart9eh8ii1\nN'h\xe9site pas si tu en veux plus !", "Merci Jam t'es un as !"]
-    }, {
-        headline: "des bars styl\xe9s",
-        messages: ["Tu sais ou sortir ce soir pr\xe8s de ma fac ?", "Je te propose Le Panic Room au 101 rue Amelot: hij.am/foo92hqz27", "Merci Jam, je vais tester !", "Ravi de t'avoir aid\xe9. Bois un coup \xe0 ma sant\xe9 \ud83c\udf7b "]
-    }]
-}
-
 function cleanMessages(e) {
     $(".messages")
         .html('<div class="message"></div>'), $(".messages > .message")
@@ -12734,7 +12718,7 @@ $(document)
         trackEvent("Page", "ready", "Visit homepage"), (0 !== $("body.index")
             .length || 0 !== $("body.bac_index")
             .length) && (0 !== $("body.bac_index")
-            .length ? (initializeReferrer("nyvJF"), examples = bacExamples()) : (initializeReferrer(), examples = mainExamples()), carousel(), showFooterOnScroll(), arrowClickScroll(), initializeAnalyticsTracking(), $("form#extra_informations")
+            .length ? (initializeReferrer("nyvJF")) : (initializeReferrer(), examples = mainExamples()), carousel(), showFooterOnScroll(), arrowClickScroll(), initializeAnalyticsTracking(), $("form#extra_informations")
             .submit(function (e) {
                 if (e.preventDefault(), !user) return !1;
                 var t = $(this),
