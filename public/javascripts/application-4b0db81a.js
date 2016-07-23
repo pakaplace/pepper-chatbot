@@ -34,10 +34,10 @@ function getParameterByName(e, t) {
 function mainExamples() {
     return [{
         headline: "be more productive",
-        messages: ["Hi, I am Pam, your personal assistant, I'll help you fulfill your personal goals", "Are you a robot?", "Yes, and I'll help you be more productive every day.", "Sounds great :)"]
+        messages: ["Hi Pepper","Hello, I am your personal assistant, I'll help you fulfill your personal goals", "Are you a robot?", "Yes, and I'll help you be more productive every day.", "Sounds great :)"]
     }, {
         headline: "wake up smoothly",
-        messages: ["It's 8am, you asked me to wake you then", "Is it 8 already? &#128542", "Yes, start your personalized morning routine!", "I finished!","Bravo! Here is a reward : <img src=http://www.awesomelycute.com/gallery/2011/11/awesomelycute-video-36.jpg style=width:170px;height:100px>"]
+        messages: ["Wake me up at 8am","It's 8am, you asked me to wake you then", "Is it 8 already? &#128542", "Yes, start your personalized morning routine!", "finished","Bravo! Here is a reward : <img src=http://www.awesomelycute.com/gallery/2011/11/awesomelycute-video-36.jpg style=width:170px;height:100px>"]
     }, {
         headline: "complete your tasks",
         messages: ["Have you completed your first task?", "Yes, I just finished it!", "Great, don't forget your meeting at 3pm!", "Shoot, I nearly forgot, thank you!"]

@@ -12396,7 +12396,7 @@ Copyright (c) 2015 Daniel Eden
     margin-bottom: 20px
 }
 .footer .footer-link h1 {
-    color: #474747;
+    color: white;
     font-size: 40px;
     margin-bottom: 5px
 }
@@ -12436,10 +12436,6 @@ Copyright (c) 2015 Daniel Eden
     border-style: none;
     color: #FFFFFF
 }
-.footer .footer-link .social .btn {
-    background-color: #C0C0C0;
-    height: 134%
-}
 .footer .footer-info {
     text-align: center;
     margin-top: 50px
@@ -12451,7 +12447,7 @@ Copyright (c) 2015 Daniel Eden
     content: " "
 }
 .footer .footer-info a {
-    color: black
+    color: white
 }
 .footer .footer-info a:hover,
 .footer .footer-info a:focus {
@@ -12565,7 +12561,7 @@ Copyright (c) 2015 Daniel Eden
     color: white;
     font-size: 20px;
     font-weight: bold;
-    background-color: #EB685B;
+    background-color: white;
     height: 0;
     -moz-transition: all 0.5s ease-in-out;
     -o-transition: all 0.5s ease-in-out;

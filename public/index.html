@@ -32,6 +32,31 @@
 
   <body class="index">
     <!-- Modal -->
+
+
+  <script>
+
+    window.fbAsyncInit = function() {
+      FB.init({
+        appId: "147413245662995",
+        xfbml: true,
+        version: "v2.6"
+      });
+
+    };
+
+    (function(d, s, id){
+       var js, fjs = d.getElementsByTagName(s)[0];
+       if (d.getElementById(id)) { return; }
+       js = d.createElement(s); js.id = id;
+       js.src = "//connect.facebook.net/en_US/sdk.js";
+       fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
+  </script>
+
+
+
 <div class="modal fade" id="myModal" role="dialog" aria-labelledby="myModalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -72,7 +97,7 @@
         <img class="logo" src="images/logo-pam.gif" style="width:180px;height:180px" />
       </div>
       <h1 class="headline">
-        Pam helps you
+        Pepper helps you
         <div class="carousel">
           <div>be more productive</div>
         </div>
@@ -80,28 +105,24 @@
         </h1>
         <form id="user_registration" class="hidden-xs hidden-sm form-inline form-registration">
 
-     <!--    <div class="fb-messengermessageus" 
+         <div class="fb-messengermessageus" 
           messenger_app_id="147413245662995" 
-          page_id="EAACGElIklxMBAOlhU5LW4HWKULqZAUxY14A5HGStslnd0RePVJfol4MDZC8eFxeQb0niqdOSdQtHVxy7jQZCQoeG93ZCBYZB8WwRDUZBF8z0BKNPNkZC8zmErY4IXFeIv26nXj7J72Ns7ZBzQJuULJnBUW4XKU077d83YoZBNlKdlBwZDZD"
+          page_id="587085204794956"
           color="blue"
-          size="standard" >
-        </div>  --> 
-        <a href="https://www.messenger.com/t/pamchatbot">
-          <img src="images/boutons-send-to-messenger.gif" style="width:300px;height:100px" href="https://www.facebook.com/pamchatbot/"></img>
-        </a>
+          size="xlarge">
+         </div>  
 
-
-        <!--   <p>
-            <input type="text" class="user_phone form-control input-lg" placeholder="Ton numéro de téléphone" />
-            <input type="hidden" class="referrer_id" />
-            <button class="btn btn-default btn-lg" data-submit="user_registration" type="submit"><i class="fa fa-paper-plane"></i></button>
-          </p> -->
         </form>
           <p class="registration-success text-success" style="display: none">
             Jam te contactera dans quelques secondes !
           </p>
         <form class="visible-xs visible-sm">
-          <a href="#" data-sms="HELLO" id="main-cta" class="btn btn-default btn-lg btn-number">Envoie HELLO au <span data-phone>06.44.63.04.04</span></a>
+          <div class="fb-messengermessageus" 
+          messenger_app_id="147413245662995" 
+          page_id="587085204794956"
+          color="blue"
+          size="xlarge">
+         </div>  
         </form>
       </div>
       <div class="col-md-6 hidden-xs hidden-sm messages-wrapper">
@@ -117,32 +138,26 @@
     </div>
     <div class="row">
       <div class="col-md-12 col-xs-12 how bg-black-color">
-        <h1>Pam is a personal assistant that helps you fulfill your goals.</h1>
+        <h1>Pepper is a personal assistant that helps you fulfill your goals.</h1>
       </div>
     </div>
     <div class="row">
       <div class="col-md-8 col-md-offset-2 faq-content">
         <h1>About</h1>
 
-        <h3>Pam is totally free and can help you:</h3>
+        <h3>Pepper is totally free and can help you:</h3>
         <p>
           Wake up, Do your morning routine, Complete daily tasks, Write personal reflections<br>
           </p>
 
         <h3>Incentive</h3>
         <p>
-          Pam rewards you at each step to keep you motivated.
+          Pepper rewards you at each step to keep you motivated.
         </p>
 
         <h3>Working hours </h3>
         <p>
-          Pam is your personal robot assistant, working 24/7.
-
-        <h3>How to unsubscribe?</h3>
-
-        <p>
-          Send <em>STOP</em>, and your account will be shut down.
-          All your profile informations will be deleted.
+          Pepper is your personal robot assistant, working 24/7.
         </p>
 
         <h3>Data Privacy</h3>
@@ -158,14 +173,6 @@
       <div class="row footer-link">
         <div class="col-md-12 social">
           <h1>Pepper</h1>
-          <div class="row social-link">
-            <a href="https://www.facebook.com/pamchatbot" target="_blank">
-              <div class="background-img">
-                <i class="fa fa-facebook"></i>
-              </div>
-            </a>
-          </div>
-     
         </div>
       </div>
     <div class="row footer-info">
@@ -180,11 +187,27 @@
   </div>
 </div>
 
+
+<div class="fixed-footer hidden-xs">
+  <div class="fixed-footer-wrapper">
+    <div class="fb-messengermessageus" 
+        messenger_app_id="147413245662995" 
+        page_id="587085204794956"
+        color="blue"
+        size="xlarge">
+      </div> 
+  </div>
+</div>
+
+
 <div class="fixed-footer show-xs hidden-lg hidden-md hidden-sm">
   <div class="fixed-footer-wrapper">
-    <a href="#" data-sms="HELLO" class="btn btn-default">
-      Envoie HELLO au <span data-phone>06.44.63.04.04</span>
-    </a>
+      <div class="fb-messengermessageus" 
+        messenger_app_id="147413245662995" 
+        page_id="587085204794956"
+        color="blue"
+        size="xlarge">
+      </div> 
   </div>
 </div>
 
