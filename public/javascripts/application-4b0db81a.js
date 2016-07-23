@@ -40,7 +40,7 @@ function mainExamples() {
         messages: ["Wake me up at 8am","It's 8am, today will be clear with a high of 99°F and a low of 74°F. ", "Is it 8 already? &#128542", "Yes, start your personalized morning routine!", "finished"]
     }, {
         headline: "complete your tasks",
-        messages: ["I finished a task!", "Bravo! Here is a reward : <img src=http://www.awesomelycute.com/gallery/2011/11/awesomelycute-video-36.jpg style=width:170px;height:100px><br>Did you like it? ","<img src=http://callmenick.com/files/2015-03/toggle_switch_3.png style=width:170px;height:50px> ","Start your next task now!"]
+        messages: ["I finished a task!", "Bravo! Here is a reward : <img src=http://www.awesomelycute.com/gallery/2011/11/awesomelycute-video-36.jpg style=width:170px;height:100px><br>Did you like it? ","<img src=http://callmenick.com/files/2015-03/toggle_switch_3.png style=width:170px;height:40px> ","Start your next task now!"]
     }, {
         headline: "reflect on your day",
         messages: ["Just finished work!","Great, what are your reflections for the day?", "I finished all my tasks and nailed my presentation!", "Congratulations, you can see all your daily reflections here:<p><u>my-personal-reflections</u></p>"]
