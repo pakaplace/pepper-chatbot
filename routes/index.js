@@ -13,4 +13,13 @@ try {
   log = require('node-wit').log;
 }
 
+
+/* GET home page. */
+router.get('/', function(req, res, next) {
+  // res.render('index', { title: 'Express' });
+  res.redirect('/index.html')
+});
+
+
 module.exports = router;
+

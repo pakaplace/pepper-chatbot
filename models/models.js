@@ -3,7 +3,7 @@ var findOrCreate = require('mongoose-findorcreate')
 
 // Create a connect.js inside the models/ directory that
 // exports your MongoDB URI!
-var connect = require('./connect.js').MONGODB_URI;
+var connect = require('./connect.js');
 
 // var db = mongoose.connection;
 // db.once('open', function callback () {
@@ -47,7 +47,7 @@ var userSchema = mongoose.Schema({
     },
   tasks:{
     type: Array
-  },
+  }, 
   prevState: {
     type: Number
   },
