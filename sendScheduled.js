@@ -1,3 +1,3 @@
 var request = require('request');
 //heroku url
-request('http://gjiotrg:3000/sendScheduled');
+request('http://pam-chatbot.herokuapp.com/sendScheduled');
