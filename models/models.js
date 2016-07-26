@@ -39,13 +39,12 @@ var userSchema = mongoose.Schema({
   city: {
     type: String
   },
-  timeToWakeUp: [
+  timeToWakeUp:
     {
       time: String,
       hour: Number,
-      minute:Number
-    }
-  ],
+      minute:Number,
+    },
   tasks:{
     type: Array
   },
@@ -72,7 +71,7 @@ var userSchema = mongoose.Schema({
     type: String,
     name: "Duration but no routine"
   },
-  reflectionTime: [
+  reflectionTime:
     {
       hour: {
         type: Number,
@@ -82,18 +81,26 @@ var userSchema = mongoose.Schema({
         type: Number,
         default: 0
       }
-    }
-  ],
+    },
+  frequency:
+  {
+      type: Number,
+      default: 2
+  },
+  topic: String,
   reflectionQuestion: {
+    type: String
+  },
+  reflectionAnswer: {
     type: String
   },
   reflection:{
     "title": {
-        // "media": {
-        //   "url": String,
-        //   "caption": String,
-        //   "credit": String
-        // },
+        "media": {
+          "url": String,
+          "caption": String,
+          "credit": String
+        },
         "text": {
           "headline": String,
           "text": String
