@@ -189,7 +189,7 @@ app.get('/webhook/', function(req, res) {
 //stateHandlers set user's state and return the user and the messageSend
 var stateHandlers = {
   //NOT_STARTED
-    0: function(user, messageReceived) {
+  0: function(user, messageReceived) {
       //set state to 1, ask for routine
       user.state = 1
       return {
@@ -197,37 +197,27 @@ var stateHandlers = {
         messageSend: prompts.WELCOME(user)
       }
     },
-  // SETUP_ROUTINE_PROMPTING
     1: function(user, messageReceived) { //
     //if the user says 'no' to add another routine, set state to 4 to ask for city
       if(messageReceived === 'no'){
-        user.state = 4
-        //deleted state 3 that ask for city and put it here
-        //SETUP_CITY_ASKING
-        return {
+        user.state = 3
+        console.log("REACHED WOW", user.state)
+        // ASK TOPICS
+        return{
           user,
-          messageSend: prompts.CITY()
+          messageSend: prompts.TOPICS
         }
       }
       //else proceed to 2, ask to add another routine
-      user.state = 1.1
+      user.state = 2
       return {
         user: user,
         messageSend: prompts.SETUP()
       }
     },
-    1.1: function(user, messageReceived){
-      user.state = 2;
-      return{
-        user,
-        messageSend: prompts.TOPICS
-      }
-    },
   //SETUP_ROUTINE_ASKING & TIME
     2: function(user, messageReceived, data) { //add data as third parameter
       //whenever state is set to 2, directly go back to 1
-      console.log("[2] State is: ", messageReceived);
-      console.log("[2] data is: ", data);
       user.state = 1
       var newRoutine = {};
       if(user.missingDuration || user.missingRoutine){
@@ -236,7 +226,6 @@ var stateHandlers = {
            duration: user.missingRoutine //null
          }
       }
-      console.log("New Routine", newRoutine)
       // if(data.entities.agenda_entry === undefined || data.entities.duration === undefined){
       //   user.state = 2;
       // }
@@ -249,7 +238,6 @@ var stateHandlers = {
         user.missingDuration = data.entities.agenda_entry[0].value;
       }
       if(newRoutine.routine === null || newRoutine.routine === undefined){ // data.entities.location === 'undefined'
-          console.log("Agenda undefined")
           user.state = 2
           user.prevState = 1;
           return {user, messageSend: prompts.SETUP("Woops, either you forgot to include a routine or I didn't pick up on that?")}
@@ -257,19 +245,29 @@ var stateHandlers = {
       if(newRoutine.duration === null || newRoutine.duration === undefined){
           user.state = 2
           user.prevState = 1;
-          console.log("Duration undefined")
           return {user, messageSend: prompts.SETUP("For how long? 5 minutes, half an hour...?")}
       }
       else{
         var status = "Awesome!"
         user.routine.push(newRoutine)
-        console.log("ROUTINE", newRoutine)
       }
+      console.log("Asking user for more")
       user.missingRoutine = null;
       user.missingDuration = null;
       return {
         user: user,
         messageSend: prompts.MOREROUTINE
+      }
+    },
+    //ASK_CITIES
+    3: function(user, messageReceived){
+      if(messageReceived === "Funny" || messageReceived === "Inspirational" || messageReceived === "Tech"){
+        user.topic = messageReceived;
+      }
+      user.state = 4;
+      return {
+        user,
+        messageSend: prompts.CITY()
       }
     },
   //SETUP_TIMETOWAKEUP_ASKING
@@ -293,9 +291,15 @@ var stateHandlers = {
       // user.token = randomCode();
       if(data.entities)
       console.log("USER~~~~~ ",user.timezone);
-      user.timeToWakeUp.hour = new Date(data.entities.datetime[0].values[0].value).getHours()+user.timezone;
-            console.log("WAKEUPTIME~~~~~ ",user.timeToWakeUp.hour);
-      user.timeToWakeUp.minute = new Date(data.entities.datetime[0].values[0].value).getMinutes();
+      var dt = new Date(data.entities.datetime[0].values[0].value);
+      user.timeToWakeUp.minute = dt.getMinutes();
+      console.log("hour", dt.getHours())
+      if(dt.getHours() <= Math.abs(user.timezone)){
+        user.timeToWakeUp.hour = 24 + dt.getHours() + user.timezone;
+        console.log("user.timeToWakeUp.hour", user.timeToWakeUp.hour)
+      } else {
+        user.timeToWakeUp.hour = dt.getHours() + user.timezone;
+      }
       user.timeToWakeUp.time = user.timeToWakeUp.hour+":"+user.timeToWakeUp.minute;
       //reduce all the routines to a string
       var routine = user.routine.reduce(function(prev, cur) {
@@ -457,25 +461,24 @@ var stateHandlers = {
       user.reflection.title.text.headline = user.reflectionQuestion;
       user.reflection.title.text.headline = messageReceived;
       user.reflectionAnswer = messageReceived;
-      
-      user.save()
+      user.state = 18
       return {
         user: user,
-        messageSend: ["I've saved your  reflection, thanks for sharing. Your information will always be kept private", 'Check out a visualizaiton of your reflection log at https://d14e4a2f.ngrok.io/reflection/' + user._id]
+        messageSend: ['You can upload a picture from today, or a selfie. Otherwise, say "no"']
       }
     },
     
     // REFLECTION_PICTURE_QUESTION
     18: function(user, messageReceived) {
+      console.log('urlllllllllllllllllll', messageReceived)
       var date = new Date();
-      user.reflection.events.push(
+      if (messageReceived) {
+        user.reflection.events.push(
         {
           //detect key words and display pictures
-          // "media": {
-          //   "url": String,
-          //   "caption": String,
-          //   "credit": String
-          // },
+          "media": {
+            "url": messageReceived
+          },
           "start_date": {
             "month": date.getMonth() + 1,
             "day": date.getDay(),
@@ -483,14 +486,13 @@ var stateHandlers = {
           },
           "text": {
             "headline": user.reflectionQuestion,
-            "text": messageReceived
+            "text": user.reflectionAnswer
           }
-        }
-      )
-      user.save()
+        })
+      }
       return {
         user: user,
-        messageSend: ["I've saved your  reflection, thanks for sharing. Your information will always be kept private", 'Check out a visualizaiton of your reflection log at https://d14e4a2f.ngrok.io/reflection/' + user._id]
+        messageSend: ["I've saved your reflection, thanks for sharing. Your information will always be kept private", 'Check out a visualizaiton of your reflection log at https://8bcaa5aa.ngrok.io/reflection/' + user._id]
       }
     },
 
@@ -500,9 +502,17 @@ var stateHandlers = {
     function(user, messageReceived, data) {
       user.state = user.prevState; //remembers where you were before menu
       user.prevState = null; 
+      console.log("WIT DATA", data)
       // user.token = randomCode();
-      user.timeToWakeUp.hour = new Date(data.entities.datetime[0].values[0].value).getHours()+user.timezone;
-      user.timeToWakeUp.minute = new Date(data.entities.datetime[0].values[0].value).getMinutes();
+      var dt = new Date(data.entities.datetime[0].values[0].value);
+      user.timeToWakeUp.minute = dt.getMinutes();
+      console.log("hour", dt.getHours())
+      if(dt.getHours() <= Math.abs(user.timezone)){
+        user.timeToWakeUp.hour = 24 + dt.getHours() + user.timezone;
+        console.log("user.timeToWakeUp.hour", user.timeToWakeUp.hour)
+      } else {
+        user.timeToWakeUp.hour = dt.getHours() + user.timezone;
+      }
       user.timeToWakeUp.time = user.timeToWakeUp.hour+":"+user.timeToWakeUp.minute;
       //reduce all the routines to a string
       var CHANGE_TIME = prompts.CHANGE_TIME;
@@ -530,6 +540,7 @@ var stateHandlers = {
     // EDIT_ROUTINES sendMultiButton creates a message with multiple buttons of the tasks/routines in the array
     102: function(user, messageReceived) {
       // user.state = user.prevState; //remembers where you were before menu
+      console.log("STATE", user.state, "OLD STATE", user.prevState)
       if(messageReceived.indexOf("ADD_NEW_ROUTINE") !== -1 ){
         user.state = 103
         user.prevState = null; 
@@ -542,7 +553,7 @@ var stateHandlers = {
         var index = parseInt(messageReceived[messageReceived.length-1])
         var deletedMessage = user.routine[index].routine;
         user.routine.splice(index, 1)
-        user.state = user.prevState
+        // user.state = user.prevState
         user.prevState = null; 
         return {
           user,
@@ -552,7 +563,7 @@ var stateHandlers = {
     },
     //add routine
     103: function(user, messageReceived, data){
-    
+    console.log("USer", user)
       var newRoutine = {};
       if(user.missingDuration || user.missingRoutine){
          newRoutine = {
@@ -567,30 +578,40 @@ var stateHandlers = {
       if(data.entities.duration){ //new routine is checked because if one is saved and the other isn't then it must be
         newRoutine.duration = data.entities.duration[0].normalized.value/60 //to acount for seconds
         user.missingRoutine = data.entities.duration[0].normalized.value/60
+        console.log('YAY 1~~~~~~~~~~~~~~~~~~')
       }
       if(data.entities.agenda_entry){
         newRoutine.routine = data.entities.agenda_entry[0].value; //to acount for seconds
         user.missingDuration = data.entities.agenda_entry[0].value;
+                console.log('YAY 2~~~~~~~~~~~~~~~~~~')
+
       }
       if(newRoutine.routine === null || newRoutine.routine === undefined){ // data.entities.location === 'undefined'
-          console.log("Agenda undefined")
+                          console.log('YAY 3~~~~~~~~~~~~~~~~~~')
+
           user.state = 2
           user.prevState = 1;
           return {user, messageSend: prompts.SETUP("Woops, either you forgot to include a routine or I didn't pick up on that?")}
       }
       if(newRoutine.duration === null || newRoutine.duration === undefined){
+                        console.log('YAY 4~~~~~~~~~~~~~~~~~~')
+
           user.state = 2
           user.prevState = 1;
           console.log("Duration undefined")
           return {user, messageSend: prompts.SETUP("For how long? 5 minutes, half an hour...?")}
       }
       else{
-        var status = "Awesome!"
+        console.log('YAY 5~~~~~~~~~~~~~~~~~~')
+        console.log("here")
+        console.log('STATE', user.state, 'prevstate',user.prevState)
         user.routine.push(newRoutine)
-        user.state = user.prevState;
+        // user.state = user.prevState;
         user.prevState = null;
         console.log("ROUTINE", newRoutine)
       }
+      console.log('YAY 6~~~~~~~~~~~~~~~~~~')
+      // user.save();
       user.missingRoutine = null;
       user.missingDuration = null;
       return {
@@ -619,13 +640,17 @@ var stateHandlers = {
        //to be changed to change frequency messages
       user.state = user.prevState; //remembers where you were before menu
       user.prevState = null; 
-     
-      console.log("new Date(data.entities.datetime[0].values[0].value).getHours()", new Date(data.entities.datetime[0].values[0].value).getHours())
-      user.reflectionTime.hour = new Date(data.entities.datetime[0].values[0].value).getHours()+user.timezone;
-      user.reflectionTime.minute = new Date(data.entities.datetime[0].values[0].value).getMinutes();
+      var dt = new Date(data.entities.datetime[0].values[0].value);
+      user.reflectionTime.minute = dt.getMinutes();
+      if(dt.getHours() <= Math.abs(user.timezone)){
+        user.reflectionTime.hour = 24 + dt.getHours() + user.timezone;
+        console.log("user.timeToWakeUp.hour", user.reflectionTime.hour)
+      } else {
+        user.reflectionTime.hour = dt.getHours() + user.timezone;
+      }
       user.reflectionTime.time = user.reflectionTime.hour+":"+user.reflectionTime.minute;
-
-       var CHANGE_TIME_REFLECTION = prompts.CHANGE_TIME_REFLECTION[0];
+      
+      var CHANGE_TIME_REFLECTION = prompts.CHANGE_TIME_REFLECTION[0];
       CHANGE_TIME_REFLECTION += user.reflectionTime.time;
       
       return {
@@ -645,8 +670,9 @@ var stateHandlers = {
 // app.post('/webhook', (req, res) => {
 //   res.send('ethan debug complete :-)')
 // })
-
+var count = 1;
 app.get('/reflection/:id', (req, res, next) => {
+  console.log("ID coming in: ", req.params.id)
   User.findById(req.params.id, function(err, user) {
     if (err) {res.status(400).send(err);}
     var data = JSON.stringify(user.reflection);
@@ -678,28 +704,22 @@ app.get('/sendScheduled', (req, res, next) => {
           }, function(error, response, body) {
             try {
               var condition = body.query.results.channel.item.condition;
-              // console.log("weatherDATAAA======", condition)
               resolve(condition);
-              // sendTextMessage(sender, "Today is " + condition.temp + " and " + condition.text + " in " + location);
             } catch(err) {
-              console.error('error caught', err);
-              // sendTextMessage(sender, "There was an error.");
               reject(err);
             }
           });
       });
-      
       p.then(function(weatherData) {
-        console.log("Send it")
         var date = new Date();
-        var userHours = date.getUTCHours() + user.timezone;
+        var userHours = 24 + date.getUTCHours() + user.timezone;
         if (user.timeToWakeUp.hour === userHours && user.timeToWakeUp.minute <= date.getMinutes()) {
           user.state = 7
-          console.log("weatherData================", weatherData)
+          // console.log("weatherData================", weatherData)
           //choose a random video
           var randomVideo = prompts.RANDOM_VIDEOS[Math.floor(Math.random()*prompts.RANDOM_VIDEOS.length)];
           // console.log("Weather message: ", prompts.WEATHER(user, weatherData));
-          sendTextMessages({user, messageSend: prompts.WEATHER(user, weatherData)})
+          sendTextMessages({user, messageSend: prompts.WEATHER(user, weatherData)});
           // sendVideo({user, messageSend: prompts.START_MORNING}, randomVideo, prompts.START_MORNING)
           uploadVideo({user, messageSend: prompts.START_MORNING}, randomVideo[0], randomVideo[1]);
         } else if (user.reflectionTime.hour === userHours && user.reflectionTime.minute <= date.getMinutes()) {
@@ -713,7 +733,6 @@ app.get('/sendScheduled', (req, res, next) => {
   res.send(200)
 });
 
-
 app.post('/test/timeout', (req, res, next) => {
   console.log('entering timeout')
   setTimeout(() => {
@@ -722,16 +741,15 @@ app.post('/test/timeout', (req, res, next) => {
 })
 
 app.post('/webhook/', function(req, res){
-  console.log("REQ",req, res)
   var event = req.body.entry[0].messaging[0];
   var messageReceived;
-  console.log("EVENT",event);
+  // console.log("EVENT",event);
 
   if (event.postback) {
     messageReceived = event.postback.payload
   } 
   else if (event.message.attachment) {
-    messageReceived = event.message.attachment[0].url;
+    messageReceived = event.message.attachment[0].payload.url;
   }
   else {
     messageReceived = event.message.text;
@@ -741,11 +759,11 @@ app.post('/webhook/', function(req, res){
 
   findOrCreateUser(req.body.entry[0].messaging[0].sender.id) //returns a promise
     .then(function(user){
-      console.log("MESSAGE RECEIVED YO", messageReceived)
+      // console.log("MESSAGE RECEIVED YO", messageReceived)
       return new Promise(function(resolve, reject){
         wit.message(messageReceived, {})
         .then((data) => {
-          console.log('WIT DATA------', data)
+          // console.log('WIT DATA------', data)
           req.witData = data;
           resolve(user)
         })
@@ -762,7 +780,6 @@ app.post('/webhook/', function(req, res){
             user.timezone = body.timezone;
             user.locale = body.locale;
             user.gender = body.gender;
-            user.topic = "funny"; //REMOVE FIX
             resolve(user);
           }
         })
@@ -770,10 +787,14 @@ app.post('/webhook/', function(req, res){
     })
     .then(function(user){
       // function retrieveMediaContent(""){
+      //get curated content
+      if(user.topic !== undefined){
         return new Promise(function(resolve, reject){
-            var topicTokens ={funny:'aca1810034a40134947a0242ac110002'};
+          console.log("TOPIC1", user.topic)
+          var topicTokens ={Funny:'aca1810034a40134947a0242ac110002', Inspirational:'498e21b034aa013423e40242ac110002', Tech:'f56e5410357e013494800242ac110002'};
+          console.log("topicTokens[user.topic]", topicTokens[user.topic])
             request({
-              url:"https://api.backstit.ch/v2/topics/"+topicTokens[user.topic]+"/results?count=1",
+              url: "https://api.backstit.ch/v2/topics/"+topicTokens[user.topic]+"/results?count=1",
               headers: {
                 "Accept": "application/json"
               },
@@ -781,7 +802,6 @@ app.post('/webhook/', function(req, res){
             }, function(error, response, body){
               var body = JSON.parse(body)
               var result = body[0];
-                console.log("Here1")
                 if(result.type ==="article"){
                   req.content = result.origin.url;
                   resolve(user);
@@ -789,11 +809,12 @@ app.post('/webhook/', function(req, res){
                 else{
                   reject(error);
                 }
-
             })
         })
-        
-      // }
+      }
+      else{ 
+        return user;
+      }
     })
     .then(function(user) {
       //user.prevState is what it is, before calling handler to set to the next state
@@ -802,16 +823,10 @@ app.post('/webhook/', function(req, res){
       console.log("+++++++User prevState+++++:", user.prevState)
       if (user.state < 100) user.prevState = user.state;
       
-      if(user.state === 1.1){
-        sendTopicButtons(user, ["Funny", "Inspirational", "News"])
-      }
+      
       /* BEGIN MENU MESSAGE HANDLING */
       var menuMessage = checkForMenu(user, messageReceived);
       if (menuMessage) {
-        if (user.prevState < 6) {
-          throw sendTextMessages({user, messageSend: prompts.ERROR})
-        }
-        
         if (user.state === 102) {
           sendButtons(menuMessage, user.routine, [
           {
@@ -907,19 +922,25 @@ app.post('/webhook/', function(req, res){
       if (! handler) {
         throw new Error("Can't handle state: " + user.state);
       }
-      console.log("YOYOYOYOYOYO~~~~~~~~ ",messageReceived)
+      console.log("messageRecieved~~~~~~~~ ",messageReceived)
+      
+      if(user.state === 3){
+        console.log("user state", user.state)
+        console.log("Reacheddddddd")
+        sendTopicButtons(user, ["Funny", "Inspirational", "News"])
+      }
       if (user.state >= 100) {
         return sendTextMessages(handle);
       }
-      else if(messageReceived === "Funny"){
-        user.topic = "funny";
-      }
-       else if(messageReceived === "Inspirational"){
-        user.topic = "inspirational";
-      }
-       else if(messageReceived === "News"){
-        user.topic = "news";
-      }
+      // else if(messageReceived === "Funny"){
+      //   user.topic = "funny";
+      // }
+      // else if(messageReceived === "Inspirational"){
+      //   user.topic = "inspirational";
+      // }
+      // else if(messageReceived === "News"){
+      //   user.topic = "news";
+      // }
       else if ((user.state === 15 && user.prevState === 13) 
         || (user.state === 15 && user.prevState === 15)) {
         if (user.tasks.length === 0) console.log("this will error, because there are no tasks\nenable ethan debug to continue")
@@ -1379,7 +1400,12 @@ function sendButtons(resp, arr, buttonArray) {
 function checkForMenu(user, messageReceived) {
   var ret = null;
   if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_WAKEUP") {
-    if (user.state < 100) { user.prevState = user.state; } // remember the state you were before opening menu
+    if (user.state < 6) {
+      return {
+          user,
+          messageSend: prompts.ERROR
+      }
+    } if (user.state < 100) { user.prevState = user.state; } // remember the state you were before opening menu
     user.state = 100;
       ret = {
         user,
@@ -1387,7 +1413,12 @@ function checkForMenu(user, messageReceived) {
       }
     } 
      else if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_CITY") {
-      if (user.state < 100) { user.prevState = user.state; } // remember the state you were before opening menu
+      if (user.state < 6) {
+      return {
+          user,
+          messageSend: prompts.ERROR
+      }
+    } if (user.state < 100) { user.prevState = user.state; } // remember the state you were before opening menu
       user.state = 101;
       ret = {
         user,
@@ -1395,7 +1426,12 @@ function checkForMenu(user, messageReceived) {
       }
     }
     else if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_ROUTINES") {
-      if (user.state < 100) { user.prevState = user.state; } // remember the state you were before opening menu
+      if (user.state < 6) {
+      return {
+          user,
+          messageSend: prompts.ERROR
+      }
+    } if (user.state < 100) { user.prevState = user.state; } // remember the state you were before opening menu
       user.state = 102;
       ret = {
         user,
@@ -1403,7 +1439,12 @@ function checkForMenu(user, messageReceived) {
       }
     }
     else if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_MESSAGE") {
-      if (user.state < 100) { user.prevState = user.state; } // remember the state you were before opening menu
+      if (user.state < 6) {
+      return {
+          user,
+          messageSend: prompts.ERROR
+      }
+    } if (user.state < 100) { user.prevState = user.state; } // remember the state you were before opening menu
       user.state = 104;
       ret = {
         user,
@@ -1411,7 +1452,12 @@ function checkForMenu(user, messageReceived) {
       }
     }
     else if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_REFLECTION") {
-      if (user.state < 100) { user.prevState = user.state; } // remember the state you were before opening menu
+      if (user.state < 6) {
+      return {
+          user,
+          messageSend: prompts.ERROR
+      }
+    } if (user.state < 100) { user.prevState = user.state; } // remember the state you were before opening menu
       user.state = 105;
       console.log("USERRRRRR", user)
       console.log("USERRRRRR.reflectionTime", user.reflectionTime)
@@ -1420,8 +1466,6 @@ function checkForMenu(user, messageReceived) {
         messageSend: ["Your current reflection time is " + user.reflectionTime.hour + ". What time do you want it to be?"]
       }
     }
-    
-    
     return ret;
 }
 
