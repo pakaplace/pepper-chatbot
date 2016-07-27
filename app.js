@@ -164,7 +164,7 @@ var prompts = {
   },
   'SHOW_TASKS': ["Here's what you have to do today?"],
   'ASK_REFLECTION_QUESTIONS': ["What's one conversation or interaction you had today that really mattered?"],
-  'RANDOM_VIDEOS':[[path.join(__dirname, 'public/videos/vid1.mp4'), 'https://www.instagram.com/jakepaul/'],[path.join(__dirname, 'public/videos/alissaviolet.mp4'),'https://www.instagram.com/alissaviolet/']],
+  'RANDOM_VIDEOS':[[path.join(__dirname, 'public/videos/vid1.mp4'), 'https://www.instagram.com/jakepaul/'],[path.join(__dirname, 'public/videos/alissaviolet.mp4'),'https://www.instagram.com/alissaviolet/'],[path.join(__dirname, 'public/videos/rachelryle.mp4'),'https://www.instagram.com/alissaviolet/'],[path.join(__dirname, 'public/videos/baddiewinkle.mp4'),'https://www.instagram.com/baddiewinkle/'],[path.join(__dirname, 'public/videos/bestvines1.mp4'),'https://www.instagram.com/bestvines/'],[path.join(__dirname, 'public/videos/brittanyfurlan.mp4'),'https://www.instagram.com/brittanyfurlan/'],[path.join(__dirname, 'public/videos/cashcats.mp4'),'https://www.instagram.com/cashcats/'],[path.join(__dirname, 'public/videos/bestvines2.mp4'),'https://www.instagram.com/bestvines/'],[path.join(__dirname, 'public/videos/bestvines3.mp4'),'https://www.instagram.com/bestvines/'],[path.join(__dirname, 'public/videos/funnyvideos1.mp4'),'https://www.instagram.com/explore/tags/funnyvideo/'],[path.join(__dirname, 'public/videos/jakepaul1.mp4'),'https://www.instagram.com/jakepaul/'],[path.join(__dirname, 'public/videos/funnyvids.mp4'),'https://www.instagram.com/funnyvideos/']],
   // "SAVE_REFLECTION_QUESTION" : ["Thank you, your reflection has been saved.", 'Check out your reflection memories at www.pamchatbot.herokuapp.com/' + user._id],
   "ERROR" : ["Please finish these first few setup questions before changing your preferences"],
   "CHANGE_TIME": ["Noted. I've updated your wake up time to: "],
@@ -287,7 +287,7 @@ var stateHandlers = {
     },
   //SETUP_READY
     5: function(user, messageReceived, data) {
-      user.state = 6
+      user.state = 7
       // user.token = randomCode();
       if(data.entities)
       console.log("USER~~~~~ ",user.timezone);
@@ -307,7 +307,7 @@ var stateHandlers = {
       }, '')
       return {
         user,
-        messageSend: ["Your morning routine is " + routine + "We'll remind you every 3 hours.",
+        messageSend: ["Your morning routine is " + routine+".",
         "If you'd like to change your settings at any time, click 'menu'. You are set"]
       }
     },
@@ -413,7 +413,7 @@ var stateHandlers = {
     },
   // ADD_ANOTHER_TASK yes or no 
     14: function(user, messageReceived) {
-      
+      console.log("MESSAGE RECEIVED~~~~ ", messageReceived);
       user.tasks = user.tasks.concat(messageReceived);
       console.log("user.tasks", user.tasks);
       user.state = 13
@@ -423,19 +423,28 @@ var stateHandlers = {
       }
     },
   // SHOW_TASK
-    15: function(user, messageReceived, trump, rocks, content) {
-    //if the user has finished all the tasks
-    if (messageReceived.indexOf('finish') > -1) {
-        console.log("WARNING! - Splicing out!");
-        var index = messageReceived[messageReceived.length - 1];
+    15: function(user, messageReceived, trump, content) {
+
+    if (user.tasks.indexOf(messageReceived)> -1 ) {
+        var index = user.tasks.indexOf(messageReceived)
+        console.log("Reached")
         user.tasks.splice(index, 1)
-        // sendTextMessages({user, messageSend:retrieveMediaContent(user.topic)})
-    }
+        user.save(function(err) {console.log('err from saving routine',err)})
+      }
+    // if (messageReceived.indexOf('finish') > -1) {
+    //     console.log("WARNING! - Splicing out!");
+    //     var index = messageReceived[messageReceived.length - 1];
+    //     user.tasks.splice(index, 1)
+    //     sendTextMessages({
+    //       user, messageSend: content
+    //     })
+    // }
       if (!user.tasks.length) {
+        console.log("~~~~~~~~~~TASKS~~~~~~~~~~~~~~~~~")
         user.state = 16
         return {
           user: user,
-          messageSend: [prompts.DONE_WORKING, content]
+          messageSend: prompts.DONE_WORKING.concat([ "Nice job finishing your task list. Here's an article I thought you would enjoy ", 'https://www.youtube.com/watch?v=gcV3jIqKznc', content])
         } 
       }
       return {
@@ -492,7 +501,7 @@ var stateHandlers = {
       }
       return {
         user: user,
-        messageSend: ["I've saved your reflection, thanks for sharing. Your information will always be kept private", 'Check out a visualizaiton of your reflection log at https://8bcaa5aa.ngrok.io/reflection/' + user._id]
+        messageSend: ["I've saved your reflection, thanks for sharing. Your information will always be kept private", 'Check out a visualizaiton of your reflection log at https://6d33454c.ngrok.io/reflection/' + user._id]
       }
     },
 
@@ -578,23 +587,19 @@ var stateHandlers = {
       if(data.entities.duration){ //new routine is checked because if one is saved and the other isn't then it must be
         newRoutine.duration = data.entities.duration[0].normalized.value/60 //to acount for seconds
         user.missingRoutine = data.entities.duration[0].normalized.value/60
-        console.log('YAY 1~~~~~~~~~~~~~~~~~~')
       }
       if(data.entities.agenda_entry){
         newRoutine.routine = data.entities.agenda_entry[0].value; //to acount for seconds
         user.missingDuration = data.entities.agenda_entry[0].value;
-                console.log('YAY 2~~~~~~~~~~~~~~~~~~')
 
       }
       if(newRoutine.routine === null || newRoutine.routine === undefined){ // data.entities.location === 'undefined'
-                          console.log('YAY 3~~~~~~~~~~~~~~~~~~')
 
           user.state = 2
           user.prevState = 1;
           return {user, messageSend: prompts.SETUP("Woops, either you forgot to include a routine or I didn't pick up on that?")}
       }
       if(newRoutine.duration === null || newRoutine.duration === undefined){
-                        console.log('YAY 4~~~~~~~~~~~~~~~~~~')
 
           user.state = 2
           user.prevState = 1;
@@ -602,15 +607,12 @@ var stateHandlers = {
           return {user, messageSend: prompts.SETUP("For how long? 5 minutes, half an hour...?")}
       }
       else{
-        console.log('YAY 5~~~~~~~~~~~~~~~~~~')
-        console.log("here")
-        console.log('STATE', user.state, 'prevstate',user.prevState)
         user.routine.push(newRoutine)
         // user.state = user.prevState;
         user.prevState = null;
         console.log("ROUTINE", newRoutine)
       }
-      console.log('YAY 6~~~~~~~~~~~~~~~~~~')
+
       // user.save();
       user.missingRoutine = null;
       user.missingDuration = null;
@@ -674,7 +676,8 @@ var count = 1;
 app.get('/reflection/:id', (req, res, next) => {
   console.log("ID coming in: ", req.params.id)
   User.findById(req.params.id, function(err, user) {
-    if (err) {res.status(400).send(err);}
+    
+    if (err || !user) {return res.status(400).send(err);}
     var data = JSON.stringify(user.reflection);
     res.render('reflection', {
       data
@@ -712,17 +715,20 @@ app.get('/sendScheduled', (req, res, next) => {
       });
       p.then(function(weatherData) {
         var date = new Date();
-        var userHours = 24 + date.getUTCHours() + user.timezone;
-        if (user.timeToWakeUp.hour === userHours && user.timeToWakeUp.minute <= date.getMinutes()) {
+        var userHours = date.getUTCHours() + user.timezone;
+        console.log("user: ", user.firstname)
+        console.log("hour at user's timezone: ",userHours)
+        console.log("user.reflectionTime.hour", user.reflectionTime.hour)
+        if (user.timeToWakeUp.hour === userHours && user.timeToWakeUp.minute <= date.getMinutes() && (date.getMinutes() - user.timeToWakeUp.minute <= 11)) {
+        console.log("I AM WAKING YOU UPPPP")
           user.state = 7
-          // console.log("weatherData================", weatherData)
           //choose a random video
+          console.log("I AM WAKING YOU UPPPP")
           var randomVideo = prompts.RANDOM_VIDEOS[Math.floor(Math.random()*prompts.RANDOM_VIDEOS.length)];
-          // console.log("Weather message: ", prompts.WEATHER(user, weatherData));
           sendTextMessages({user, messageSend: prompts.WEATHER(user, weatherData)});
           // sendVideo({user, messageSend: prompts.START_MORNING}, randomVideo, prompts.START_MORNING)
           uploadVideo({user, messageSend: prompts.START_MORNING}, randomVideo[0], randomVideo[1]);
-        } else if (user.reflectionTime.hour === userHours && user.reflectionTime.minute <= date.getMinutes()) {
+        } else if (user.reflectionTime.hour === userHours && user.reflectionTime.minute <= date.getMinutes() && (date.getMinutes() - user.reflectionTime.minute <= 11)) {
           user.state = 17
           sendTextMessages({user, messageSend: prompts.ASK_REFLECTION_QUESTIONS})
         }
@@ -765,6 +771,8 @@ app.post('/webhook/', function(req, res){
         .then((data) => {
           // console.log('WIT DATA------', data)
           req.witData = data;
+          
+          console.log("[PHASE] Wit parsing ------------")
           resolve(user)
         })
       })
@@ -788,6 +796,7 @@ app.post('/webhook/', function(req, res){
     .then(function(user){
       // function retrieveMediaContent(""){
       //get curated content
+      console.log("USER TOPIC]]]]", user.topic)
       if(user.topic !== undefined){
         return new Promise(function(resolve, reject){
           console.log("TOPIC1", user.topic)
@@ -800,10 +809,13 @@ app.post('/webhook/', function(req, res){
               },
               method: 'GET'
             }, function(error, response, body){
-              var body = JSON.parse(body)
+                            var body = JSON.parse(body)
               var result = body[0];
-                if(result.type ==="article"){
+                if(result.type){
                   req.content = result.origin.url;
+                  console.log("req.content type ", typeof req.content)
+                  console.log("REQ.CONTENT~~~ ", req.content)
+                  console.log("[PHASE] Content retrieval ------------")
                   resolve(user);
                 }
                 else{
@@ -851,7 +863,9 @@ app.post('/webhook/', function(req, res){
 
       //call handle to set the state to the next
       // if (typeof handler === 'promise')
-      var handle = handler(user, messageReceived, req.witData, req.weatherData, req.content); //add req.witData
+      // console.log("REQREQREQREQ ", req, req.content)
+      console.log("[PHASE] Message retrieval ------------")
+      var handle = handler(user, messageReceived, req.witData, req.content); //add req.witData
       // console.log("Got to state " + handle.user.state)
       
       
@@ -918,6 +932,18 @@ app.post('/webhook/', function(req, res){
       }
       /*END OF MORNING ROUTINE*/
       
+      /*TASK MANAGEMENT*/
+      // console.log("~~~~~~~~~~~~~~", user.tasks)
+      // console.log('~~~~~', messageReceived);
+      // // if (user.state !== 13 && user.tasks.indexOf(messageReceived) === -1) {
+      // //   var index = user.tasks.indexOf(messageReceived)
+      // //   user.tasks.splice(index, 1)
+      // //   user.save(function(err) {console.log('err from saving routine',err)})
+      // // }
+      // console.log("~~~~~~~~~~~~~~", user.tasks)
+
+      /*END OF TASK MANAGEMENT*/
+      
       /*START OF PAM RESPONSE*/
       if (! handler) {
         throw new Error("Can't handle state: " + user.state);
@@ -944,19 +970,17 @@ app.post('/webhook/', function(req, res){
       else if ((user.state === 15 && user.prevState === 13) 
         || (user.state === 15 && user.prevState === 15)) {
         if (user.tasks.length === 0) console.log("this will error, because there are no tasks\nenable ethan debug to continue")
-        return sendMultiButton(handle, user.tasks, handle.messageSend, 'start', 'finish')
+        return sendMultiButton(handle, user.tasks, handle.messageSend, 'Finish', 'Add New Task')
       }
       //changed to 2 after we incremented the state
       else if (user.prevState === 2 || user.prevState === 7 || user.prevState === 10 || user.prevState === 14) {
         // console.log("attempting a sendButton with ", handle.messageSend);
-        console.log("Sending button: ", handle);
-        console.log("user.tasks, again", handle.user.tasks)
         return sendButton(handle)
       //send a video
       } else if (user.state === 16 || user.prevState === 6) {
         // sendTextMessages(handle, retrieveMediaContent(user.topic))
       //the video here will be randomly generated later
-        return sendVideo(handle, 'http://clips.vorwaerts-gmbh.de/VfE_html5.mp4', handle.messageSend)
+        // return sendVideo(handle, 'http://clips.vorwaerts-gmbh.de/VfE_html5.mp4', handle.messageSend) /// SEND CONTENT HERE
       } else if (user.prevState === 8 && user.state === 8) {
         // if (user.routineCopy.length) {
         return sendMorningRoutine(handle, user.routineCopy, handle.messageSend, 'begin', 'finish')
@@ -967,14 +991,14 @@ app.post('/webhook/', function(req, res){
           //how can i trigger again?? 
         // }
       } else if (user.prevState === 8 && user.state === 10) {
-        return sendVideo(handle, 'http://clips.vorwaerts-gmbh.de/VfE_html5.mp4', handle.messageSend) //sends twice because state and prev state are maintained
-      } 
-      if(user.state === 11 ){
-        return sendTextMessages(handle, retrieveMediaContent(user.topic))
+        return sendTextMessages({handle, messageSend:["Here's a "+ user.topic+ "link I thought you might like...", content]}) // SEND CONTENT HERE sends twice because state and prev state are maintained
       }
-      if (user.state === 16) {
-        console.log(handle);
-      }
+
+      //commented out at 4:41 because retrievemediacontent is not a function
+      // if(user.state === 11 ){
+      //   return sendTextMessages(handle, retrieveMediaContent(user.topic))
+      // }
+      
       return sendTextMessages(handle)
     })
     .then(function(resp) {
@@ -1218,7 +1242,7 @@ function sendVideo(resp, url, text) {
 }
 
 //sendMultiButton creates a message with multiple buttons of the tasks/routines in the array
-function sendMorningRoutine(resp, arr, text, buttonTitle1, buttonTitle2) {
+function sendMultiButton(resp, arr, text, buttonTitle1, buttonTitle2) {
   return new Promise(function(resolve, reject) {
     var messageData = {
       "attachment": {
@@ -1230,24 +1254,39 @@ function sendMorningRoutine(resp, arr, text, buttonTitle1, buttonTitle2) {
         }
       }
     }
-    var imgArr = ['https://source.unsplash.com/category/nature','https://source.unsplash.com/category/objects','https://source.unsplash.com/category/food','https://source.unsplash.com/category/buildings','https://source.unsplash.com/category/people','https://source.unsplash.com/category/technology'];
-    arr.forEach(function(element, i) {
-      // "http://blog.myvirtualyoga.com/wp-content/uploads/2015/02/meditation-pose-drawing.jpg","http://workoutlabs.com/wp-content/uploads/watermarked/Wide_Pushup1.png","http://cdn.imgs.steps.dragoart.com/how-to-draw-tea-tea-step-4_1_000000075607_3.jpg"
+    arr.forEach(function(element,i) {
       var el = {
-        "title": element.routine,
+        "title": element,
         // "subtitle": "Element #1 of an hscroll",
-        "image_url": imgArr[i % imgArr.length],
+        "image_url": "http://cdn1.bostonmagazine.com/wp-content/uploads/2013/10/mornign-yoga-main.jpg",
         "buttons": [{
           'type': 'postback',
-          'payload': buttonTitle1 + element.routine,
+          'payload': element,
           'title': buttonTitle1
         },{
           'type': 'postback',
-          'payload': element.routine,
+          'payload': buttonTitle2,
           'title': buttonTitle2
         }]
       }
       messageData.attachment.payload.elements.push(el)
+    })
+    request({
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token:TOKEN},
+        method: 'POST',
+        json: {
+            recipient: {id: resp.user.facebookId},
+            message: messageData,
+        }
+      }, function(error, response, body) {
+        if (error) {
+            console.log('Error sending messages: ', error)
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error)
+        } else {
+          resolve(resp)
+        }
     })
   })
 }
@@ -1318,7 +1357,7 @@ function sendTopicButtons(resp, arr) {
       var el = {
         "title": element,
         // "subtitle": "Element #1 of an hscroll",
-        "image_url": "https://source.unsplash.com/category/nature",
+        "image_url": imgArr[i],
         "buttons": [{
           'type': 'postback',
           'payload': element,
@@ -1459,11 +1498,9 @@ function checkForMenu(user, messageReceived) {
       }
     } if (user.state < 100) { user.prevState = user.state; } // remember the state you were before opening menu
       user.state = 105;
-      console.log("USERRRRRR", user)
-      console.log("USERRRRRR.reflectionTime", user.reflectionTime)
       ret = {
         user,
-        messageSend: ["Your current reflection time is " + user.reflectionTime.hour + ". What time do you want it to be?"]
+        messageSend: ["Your current reflection time is " + user.reflectionTime.hour+":"+user.reflectionTime.minute + ". What time do you want it to be?"]
       }
     }
     return ret;
