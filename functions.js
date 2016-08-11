@@ -1,18 +1,13 @@
 'use strict'
-const express = require('express')
-const bodyParser = require('body-parser')
 const request = require('request')
-const fs = require('fs')
-const app = express()
 const TOKEN = process.env.FB_TOKEN
+//Models
+var User = require('./models/models').User;
 
-app.set('port', (process.env.PORT)|| 3000)
-app.use(bodyParser.urlencoded({extended: false}))
-
-app.use(bodyParser.json())
-
+// findOrCreateUser(facebookId<string>)
 // This finds or creates a user given its facebook ID
 function findOrCreateUser(facebookId) {
+
   var promise = new Promise(function(resolve, reject) { //both are functions
     User.findOne({facebookId: facebookId})
       .then(function(user) { //if there is a user
@@ -28,35 +23,6 @@ function findOrCreateUser(facebookId) {
   return promise;
 }
 
-//retrieve content from backstitch
-// function retrieveMediaContent(topic){
-//   return new Promise(function(resolve, reject){
-//     function callback(error, response){
-//       var topicTokens ={funny:'aca1810034a40134947a0242ac110002'}
-//       request({
-//         url:"https://api.backstit.ch/v2/topics/"+topicTokens[user.topic]+"/results",
-//         headers: {
-//           "Accept": "application/json"
-//         },
-//         method: 'GET'
-//       }, function(error, response, body){
-//         if(response.statusCode==200 && !error){
-//           var result = body[0]
-//           if(result ==="article"){
-//             resolve(result.origin.url);
-//           }
-//           else{
-//             return error;
-//           }
-//         }
-//         else{
-//           return error;
-//         }
-//       })
-//     }
-//   })
-
-// }
 
 //setTextMessages sends messages in an array
 var sendTextMessages = function(resp) {
@@ -102,10 +68,12 @@ function sendButton(resp) {
       }
     }, function(error, response, body) {
         if (error) {
-            console.log('Error in sendButton ', error)
+            // console.log('Error sending messages: ', error)
         } else if (response.body.error) {
-            console.log('Error from response.body.error in sendButton', response.body.error)
+          // reject(error); fix
+            // console.log('Error: ', response.body.error)
         } else {
+        //this is the callback and pass down resp
           resolve(resp)
         }
     })
@@ -144,7 +112,7 @@ function sendVideo(resp, url, text) {
   })
 }
 
-//yploadVideo takes resp, path, text to upload a video
+//sendVideo takes resp, url, text to send a video
 function uploadVideo(resp, path, text) {
   resp.messageSend = [text]
   return sendTextMessages(resp)
@@ -168,36 +136,68 @@ function uploadVideo(resp, path, text) {
         if (error) {
             console.log('Error sending messages: ', error)
         } else if (response.body.error) {
-          reject(response.body.error);
+            console.log('Error: ', response.body.error)
+            return reject(response.body.error);
+        } else {
+        //this is the callback and pass down resp
+          console.log("Body of response:", body);
+          resolve(resp)
+        }
+    })
+    })
+  })
+}
+
+
+//sendMultiButton creates a message with multiple buttons of the tasks/routines in the array
+function sendMultiButton(resp, arr, text, buttonTitle1, buttonTitle2) {
+  return new Promise(function(resolve, reject) {
+    var messageData = {
+      "attachment": {
+        "type": "template",
+        "payload": {
+            "template_type": "generic",
+            // "text": text,
+            "elements": []
+        }
+      }
+    }
+    arr.forEach(function(element,i) {
+      var el = {
+        "title": element,
+        // "subtitle": "Element #1 of an hscroll",
+        "image_url": "http://cdn1.bostonmagazine.com/wp-content/uploads/2013/10/mornign-yoga-main.jpg",
+        "buttons": [{
+          'type': 'postback',
+          'payload': element,
+          'title': buttonTitle1
+        },{
+          'type': 'postback',
+          'payload': "Add another task" ,
+          'title': "Add another task"
+        }]
+      }
+      messageData.attachment.payload.elements.push(el)
+    })
+    request({
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token:TOKEN},
+        method: 'POST',
+        json: {
+            recipient: {id: resp.user.facebookId},
+            message: messageData,
+        }
+      }, function(error, response, body) {
+        if (error) {
+            console.log('Error sending messages: ', error)
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error)
         } else {
           resolve(resp)
         }
     })
   })
-
-    // fs.createReadStream(path).pipe(
-    //   request.post({
-    //   url: 'https://graph.facebook.com/v2.6/me/messages',
-    //   qs: {access_token: TOKEN}
-    // }, function(error, response, body) {
-    //     if (error) {
-    //         console.log('Error sending messages: ', error)
-    //         return reject(error);
-    //     } else if (response.body.error) {
-    //         console.log('Error: ', response.body.error)
-    //         return reject(response.body.error);
-    //     } else {
-    //     //this is the callback and pass down resp
-    //       console.log("Body of response:", body);
-    //       resolve(resp)
-    //     }
-    // }))
-    // .form();
-    // form.append('file', fs.createReadStream(path));
-  })
 }
-
-//sendMorningRoutine creates a message with multiple buttons of the tasks/routines in the array
 function sendMorningRoutine(resp, arr, text, buttonTitle1, buttonTitle2) {
   return new Promise(function(resolve, reject) {
     var messageData = {
@@ -260,12 +260,12 @@ function sendTopicButtons(resp, arr) {
         }
       }
     }
-    var imgArr = ['https://source.unsplash.com/category/nature','https://source.unsplash.com/category/objects','https://source.unsplash.com/category/food','https://source.unsplash.com/category/buildings','https://source.unsplash.com/category/people','https://source.unsplash.com/category/technology'];
+    var imgArr = ['https://pbs.twimg.com/profile_images/462244617321062400/ZU9gWQ4j_400x400.png','http://s5.favim.com/orig/54/colorful-draw-girl-imagine-Favim.com-536090.jpg','http://www.coloori.com/wp-content/uploads/2016/03/fuseetintin.jpg'];
     arr.forEach(function(element, i) {
       var el = {
         "title": element,
         // "subtitle": "Element #1 of an hscroll",
-        "image_url": "https://source.unsplash.com/category/nature",
+        "image_url": imgArr[i % imgArr.length],
         "buttons": [{
           'type': 'postback',
           'payload': element,
@@ -294,7 +294,14 @@ function sendTopicButtons(resp, arr) {
   })
 }
 
-//sendButtons creates a message with multiple buttons of the tasks/routines in the array
+// sendButton(resp<Object>, arr<Array>, buttonArray<Array>)
+//
+// sends a carousel of messages w/ buttons to the user
+//
+// @param: resp<Object>: response object - used for getting the user's facebookId
+// @param: arr<Array<String>>: array of strings corresponding to the message for each card
+// @param: buttonArray<Array<String|Object>>: array of strings to name the buttons for each card
+// @returns: a promise
 function sendButtons(resp, arr, buttonArray) {
   console.log(buttonArray);
   return new Promise(function(resolve, reject) {
@@ -311,7 +318,7 @@ function sendButtons(resp, arr, buttonArray) {
     arr.forEach(function(element, i) {
       console.log("Ethan Debug", element.routine);
       var el = {
-        "title": element.routine,
+        "title": element,
         //images displaying in the routine menu
         "image_url": imgArr[i % imgArr.length],
         buttons: buttonArray.map((button) => {
@@ -347,44 +354,82 @@ function sendButtons(resp, arr, buttonArray) {
 function checkForMenu(user, messageReceived) {
   var ret = null;
   if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_WAKEUP") {
-    if (user.state < 100) { user.prevState = user.state; } // remember the state you were before opening menu
+    if (user.state < 6) {
+      return {
+          user,
+          messageSend: prompts.ERROR
+      }
+    } if (user.state < 100) { user.prevState = user.state; } // remember the state you were before opening menu
     user.state = 100;
       ret = {
         user,
         messageSend: ["Your current wake up time is " + user.timeToWakeUp.time + ". What time do you want it to be?"] //fix
       }
-    } else if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_CITY") {
-      if (user.state < 100) { user.prevState = user.state; } // remember the state you were before opening menu
+    }
+     else if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_CITY") {
+      if (user.state < 6) {
+      return {
+          user,
+          messageSend: prompts.ERROR
+      }
+    } if (user.state < 100) { user.prevState = user.state; } // remember the state you were before opening menu
       user.state = 101;
       ret = {
         user,
         messageSend: ["Your current city is " + user.city + ". Which one do you want it to be?"]
       }
-    } else if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_ROUTINES") {
-      if (user.state < 100) { user.prevState = user.state; } // remember the state you were before opening menu
+    }
+    else if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_ROUTINES") {
+      if (user.state < 6) {
+      return {
+          user,
+          messageSend: prompts.ERROR
+      }
+    } if (user.state < 100) { user.prevState = user.state; } // remember the state you were before opening menu
       user.state = 102;
       ret = {
         user,
         messageSend: ["Your current routine is:"]
       }
-    } else if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_MESSAGE") {
-      if (user.state < 100) { user.prevState = user.state; } // remember the state you were before opening menu
+    }
+    else if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_MESSAGE") {
+      if (user.state < 6) {
+      return {
+          user,
+          messageSend: prompts.ERROR
+      }
+    } if (user.state < 100) { user.prevState = user.state; } // remember the state you were before opening menu
       user.state = 104;
       ret = {
         user,
         messageSend: ["Your message frequency is every " + user.frequency + " hours. What do you want it to be?"]
       }
-    } else if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_REFLECTION") {
-      if (user.state < 100) { user.prevState = user.state; } // remember the state you were before opening menu
+    }
+    else if (messageReceived === "DEVELOPER_DEFINED_PAYLOAD_FOR_REFLECTION") {
+      if (user.state < 6) {
+      return {
+          user,
+          messageSend: prompts.ERROR
+      }
+    } if (user.state < 100) { user.prevState = user.state; } // remember the state you were before opening menu
       user.state = 105;
-      console.log("USERRRRRR", user)
-      console.log("USERRRRRR.reflectionTime", user.reflectionTime)
       ret = {
         user,
-        messageSend: ["Your current reflection time is " + user.reflectionTime.hour + ". What time do you want it to be?"]
+        messageSend: ["Your current reflection time is " + user.reflectionTime.hour+":"+user.reflectionTime.minute + ". What time do you want it to be?"]
       }
     }
     return ret;
 }
 
-module.exports = app;
+module.exports = {
+  findOrCreateUser: findOrCreateUser,
+  sendButton: sendButton,
+  sendButtons: sendButtons,
+  sendMultiButton: sendMultiButton,
+  sendTextMessages: sendTextMessages,
+  sendVideo: sendVideo,
+  uploadVideo: uploadVideo,
+  sendMorningRoutine: sendMorningRoutine,
+  sendTopicButtons: sendTopicButtons,
+  checkForMenu: checkForMenu
+}

@@ -95,19 +95,22 @@ var userSchema = mongoose.Schema({
     type: String
   },
   reflection:{
-    "title": {
-        "media": {
-          "url": String,
-          "caption": String,
-          "credit": String
-        },
-        "text": {
-          "headline": String,
-          "text": String
-        }
-    },
+    // "title": {
+    //     "media": {
+    //       "url": String
+    //     },
+    //     "text": {
+    //       "headline": String,
+    //       "text": String
+    //     }
+    // },
     "events": []
-    }
+    },
+  reflectionState:{
+    type: Number,
+    default: 0
+  }
+
 });
 
 userSchema.plugin(findOrCreate);
