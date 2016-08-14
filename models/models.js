@@ -27,15 +27,6 @@ var userSchema = mongoose.Schema({
     type: String,
     required: true
   },
-  routine:[
-    {
-      routine: String,
-      duration:Number
-    }
-  ],
-  routineCopy:{
-    type: Array
-  },
   city: {
     type: String
   },
@@ -48,7 +39,7 @@ var userSchema = mongoose.Schema({
   ],
   tasks:{
     type: Array
-  }, 
+  },
   prevState: {
     type: Number
   },
