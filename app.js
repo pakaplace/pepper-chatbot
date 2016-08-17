@@ -46,17 +46,19 @@ app.get('/webhook/', function(req, res) {
     return res.send('Error, wrong token');
 });
 
-// Ethan Debug
+// // Ethan Debug
 // app.post('/webhook', (req, res) => {
 //   res.send('ethan debug complete :-)')
 // })
+
 var count = 1;
 app.get('/reflection/:id', (req, res, next) => {
   console.log("ID coming in: ", req.params.id)
   User.findById(req.params.id, function(err, user) {
-
+    console.log('find user!', user)
     if (err || !user) {return res.status(400).send(err);}
     var data = JSON.stringify(user.reflection);
+    console.log('user.refleciton!', data)
     res.render('reflection', {
       data
     })
@@ -125,8 +127,11 @@ app.post('/webhook/', function(req, res){
     messageReceived = event.postback.payload
   }
   //if the user uploads a picture
-  else if (event.message.attachment) {
-    messageReceived = event.message.attachment[0].payload.url;
+  else if (event.message.attachments) {
+    console.log("EVENT MESSAGE ATTACHMENT", event.message.attachments)
+    messageReceived = event.message.attachments[0].payload.url;
+    console.log("EVENT MESSAGE Received", messageReceived)
+
   }
   //when user texts
   else{
@@ -152,11 +157,13 @@ app.post('/webhook/', function(req, res){
         timezone,locale,gender&access_token='+TOKEN, (err, req, body) => {
           if (err) {reject(err);}
           if(body){
+            console.log("WEBHOOK BODY~~~~~", body)
             body = JSON.parse(body);
             user.firstname = body.first_name;
             user.timezone = body.timezone;
             user.locale = body.locale;
             user.gender = body.gender;
+            console.log("WEBHOOK USER~~~~~", user)
             resolve(user);
           }
         })
@@ -243,11 +250,11 @@ app.post('/webhook/', function(req, res){
       if (user.state >= 100) {
         return sendTextMessages(handle);
       }
-      else if (user.state === 10 || user.prevState === 10) {
+      else if (user.state === 10 || (user.prevState === 10 && user.state !== 12 && user.state !== 8)) {
         if (user.tasks.length === 0) console.log("this will error, because there are no tasks\nenable ethan debug to continue")
         return sendMultiButton(handle, user.tasks, handle.messageSend, 'Finish', 'Add New Task')
       }
-      else if (user.prevState === 6 || user.prevState === 8) {
+      else if (user.prevState === 6 || user.prevState === 8 || user.prevState === 12) {
         return sendButton(handle)
       }
       // else if (user.state === 16 || user.prevState === 6) {

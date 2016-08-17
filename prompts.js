@@ -8,6 +8,8 @@ var path = require('path');
 var prompts = {
   //SETUP
  "WELCOME": function(user){
+   console.log("USER", user)
+   console.log("USER", user.firstname)
    return  ["Nice to meet you "+ user.firstname, "Your decision to message me was a good one, as you'll see...",
              "I'll text you when I wake up in the mornings, keep track of your tasks, and feed you reflection questions at the end of the day :)"]
  },
@@ -49,7 +51,7 @@ var prompts = {
   },
 
   'START_MORNING': function(user){
-    var responseArr = ["Good morning "+user.name+". This video should help get you out of bed!", "Hello there "+user.name+". Here's something to brighten this morning", "WAKE UP "+user.name+"!!! My dear, did I leave the caps lock on :o . Here's a funny clip to start your morning","Rise and shine "+user.name+". I'm funny, don't you think?" ];
+    var responseArr = ["Good morning "+user.firstname+". This video should help get you out of bed!", "Hello there "+user.firstname+". Here's something to brighten this morning", "WAKE UP "+user.firstname+"!!! My dear, did I leave the caps lock on :o . Here's a funny clip to start your morning","Rise and shine "+user.firstname+". I'm funny, don't you think?" ];
     var response = [responseArr[Math.floor(Math.random()*responseArr.length)]] //randomizes response
     return response;
   },
@@ -75,13 +77,30 @@ var prompts = {
 
   'BEGIN_WORKING_STANDBY':["No worries, type anything to start your tasks."],
 
-  'DONE_WORKING': function(user){
-    var arr = []
-    var responseArr = ["You're finished "+user.name+"! Take pride in what you've done today. If you'd like to add more tasks, tap on the menu icon", "Fantastic, "+user.name+"! Time for some well deserved personal time. If you'd like to add more tasks, tap on the menu icon", "Beautifully done, "+user.name+"! Let me know if you'd like to add more tasks by tapping on the menu icon"]
-    var response = responseArr[Math.floor(Math.random()*responseArr.length)] //randomizes response
-    arr[0] = response;
+  'DONE_WORKING': function(user, content){
+    var responseArr = ["You're finished "+user.firstname+"! Take pride in what you've done today. If you'd like to add more tasks, tap on the menu icon", "Fantastic, "+user.firstname+"! Time for some well deserved personal time. If you'd like to add more tasks, tap on the menu icon", "Beautifully done, "+user.firstname+"! Let me know if you'd like to add more tasks by tapping on the menu icon"]
+    var response = [responseArr[Math.floor(Math.random()*responseArr.length)]] //randomizes response
     return response;
   },
+
+  'STALL': {
+        "attachment": {
+            "type": "template",
+            "payload": {
+                "template_type": "button",
+                "text": 'Would you like to reflect?',
+                "buttons": [{
+                      "type": "postback",
+                      "payload": 'yes',
+                      "title": 'Yes'
+                  }, {
+                      "type": "postback",
+                      "payload": 'no',
+                      "title": 'No'
+                  }]
+            }
+        }
+    },
 
   'NO_WORKING': ["Fine, just let me know when you're ready to begin"],
 

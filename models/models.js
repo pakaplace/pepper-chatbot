@@ -63,6 +63,13 @@ var userSchema = mongoose.Schema({
     type: String,
     name: "Duration but no routine"
   },
+  reflectionState:{
+    type: Number,
+    default: 0
+  },
+  reflectionAnswer:{
+    type: String
+  },
   reflectionTime: [
     {
       hour: {
@@ -80,11 +87,11 @@ var userSchema = mongoose.Schema({
   },
   reflection:{
     "title": {
-        // "media": {
-        //   "url": String,
-        //   "caption": String,
-        //   "credit": String
-        // },
+        "media": {
+          "url": String,
+          "caption": String,
+          "credit": String
+        },
         "text": {
           "headline": String,
           "text": String

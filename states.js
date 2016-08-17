@@ -136,12 +136,6 @@ var stateHandlers = {
     },
     //SHOW_TASKS
     10: function(user, messageReceived, trump, content) {
-      if (user.tasks.indexOf(messageReceived)> -1 ) {
-          var index = user.tasks.indexOf(messageReceived)
-          console.log("Reached")
-          user.tasks.splice(index, 1)
-          user.save(function(err) {console.log('err from saving routine',err)})
-        }
       if (messageReceived === "Add another task"){
         user.state = 8;
         return {
@@ -149,11 +143,18 @@ var stateHandlers = {
             messageSend: prompts.ASK_FOR_TASKS
           }
       }
+      if (user.tasks.indexOf(messageReceived)> -1) {
+          var index = user.tasks.indexOf(messageReceived)
+          console.log("Reached")
+          user.tasks.splice(index, 1)
+          user.save(function(err) {console.log('err from saving routine', err)})
+        }
       if (!user.tasks.length) {
+        console.log("REACHED YO")
         user.state = 12
         return {
           user,
-          messageSend: prompts.DONE_WORKING.concat([ "Here's an article I thought you would enjoy ", content])
+          messageSend: prompts.DONE_WORKING(user)
         }
       }
       return {
@@ -174,15 +175,26 @@ var stateHandlers = {
       user.state = 13
       return {
         user,
-        messageSend: prompts.DONE_WORKING(user)
+        messageSend: prompts.STALL
       }
     },
   // ASK_REFLECTION_QUESTIONS
     13: function(user, messageReceived) {
-      user.state = 14
-      //choose a random reflection question
-      user.reflectionQuestion = prompts.ASK_REFLECTION_QUESTIONS(user.reflectionState);
-      user.reflectionState++;
+      if (messageReceived === 'yes') {
+        user.state = 14
+        //choose a random reflection question
+        user.reflectionQuestion = prompts.ASK_REFLECTION_QUESTIONS(user.reflectionState);
+        user.reflectionState++;
+        if(user.reflectionQuestion === undefined){user.reflectionState = 0} // prevents question not in prompts array from being asked
+      } else {
+        user.state=12;
+        user.prevState=10;
+        return {
+          user,
+          messageSend: ["Fine. You can reflect later if you'd like..."]
+        }
+      }
+
       return {
         user,
         messageSend: ["Another day down. Take a second to reflect and your response will be saved and visualized",user.reflectionQuestion]
@@ -203,7 +215,6 @@ var stateHandlers = {
 
   // REFLECTION_PICTURE_QUESTION
     15: function(user, messageReceived) {
-      console.log('urlllllllllllllllllll', messageReceived)
       var date = new Date();
       if (messageReceived.indexOf('https') < 0) {
         messageReceived = 'https://source.unsplash.com/category/nature'
@@ -226,7 +237,7 @@ var stateHandlers = {
         })
       return {
         user: user,
-        messageSend: ["I've saved your reflection, thanks for sharing. Your information will always be kept private", 'Check out a visualizaiton of your reflection log at https://6ec1f808.ngrok.io/reflection/' + user._id, "I'll be in touch tomorrow!"]
+        messageSend: ["I've saved your reflection, thanks for sharing. Your information will always be kept private", 'Check out a visualizaiton of your reflection log at https://3d2eae5e.ngrok.io/reflection/' + user._id, "I'll be in touch tomorrow!"]
       }
     },
 
