@@ -1,4 +1,8 @@
 'use strict'
+var path = require('path');
+// app.set('views', path.join(__dirname, 'views'));
+// app.use(express.static(path.join(__dirname, 'public')));
+// app.set('view engine', 'hbs');
 
 //prompts are all the response PAM would send back
 var prompts = {
@@ -72,8 +76,10 @@ var prompts = {
   'BEGIN_WORKING_STANDBY':["No worries, type anything to start your tasks."],
 
   'DONE_WORKING': function(user){
+    var arr = []
     var responseArr = ["You're finished "+user.name+"! Take pride in what you've done today. If you'd like to add more tasks, tap on the menu icon", "Fantastic, "+user.name+"! Time for some well deserved personal time. If you'd like to add more tasks, tap on the menu icon", "Beautifully done, "+user.name+"! Let me know if you'd like to add more tasks by tapping on the menu icon"]
     var response = responseArr[Math.floor(Math.random()*responseArr.length)] //randomizes response
+    arr[0] = response;
     return response;
   },
 
