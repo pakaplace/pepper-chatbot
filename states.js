@@ -23,10 +23,10 @@ var stateHandlers = {
     },
     //ASK_CITIES
     2: function(user, messageReceived){
-      if(messageReceived === "Funny" || messageReceived === "News" || messageReceived === "Tech"){
+      if(messageReceived === "Sports" || messageReceived === "News" || messageReceived === "Tech"){
         user.topic = messageReceived;
       }
-      else if (messageReceived !== "Funny" || messageReceived !== "News" || messageReceived !== "Tech"){
+      else if (messageReceived !== "Sports" || messageReceived !== "News" || messageReceived !== "Tech"){
          user.state = 2;
          return{
            user,
@@ -71,7 +71,7 @@ var stateHandlers = {
       user.timeToWakeUp.time = user.timeToWakeUp.hour+":"+user.timeToWakeUp.minute;
       return {
         user,
-        messageSend: ["You are set! I will wake you up tomorrow morning."]
+        messageSend: ["You are set! I'll be contacting you tomorrow morning at "+user.timeToWakeUp.time+ " to help you start your day"]
       }
     },
   //START_MORNING
@@ -237,7 +237,7 @@ var stateHandlers = {
         })
 
         user.reflection.title.media.url =  user.profile;
-        user.reflection.title.text.headline = user.firstname + "'s reflection";
+        user.reflection.title.text.headline = user.firstname + "'s Memories";
       return {
         user,
         messageSend: ["I've saved your reflection, thanks for sharing. Your information will always be kept private", 'Check out a visualizaiton of your reflection log at https://3d2eae5e.ngrok.io/reflection/' + user._id, "I'll be in touch tomorrow!"]
