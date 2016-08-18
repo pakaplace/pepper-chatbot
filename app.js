@@ -173,7 +173,7 @@ app.post('/webhook/', function(req, res){
       console.log("USER TOPIC]]]]", user.topic)
       if(user.topic !== undefined){
         return new Promise(function(resolve, reject){
-          var topicTokens ={Funny:'aca1810034a40134947a0242ac110002', News:'0b8d7f30472d0134291e0242ac110002', Tech:'a55489d0472c013424560242ac110002'};
+          var topicTokens ={Sports:'db489610479d0134291f0242ac110002', News:'0b8d7f30472d0134291e0242ac110002', Tech:'a55489d0472c013424560242ac110002'};
           console.log("topicTokens[user.topic]", topicTokens[user.topic])
             request({
               url: "https://api.backstit.ch/v2/topics/"+topicTokens[user.topic]+"/results?count=1",
@@ -247,7 +247,7 @@ app.post('/webhook/', function(req, res){
       console.log("messageRecieved~~~~~~~~ ",messageReceived)
 
       if (user.state === 2){
-        sendTopicButtons(user, ["Funny", "News", "Tech"])
+        sendTopicButtons(user, ["Sports", "News", "Tech"])
       }
       if (user.state >= 100) {
         return sendTextMessages(handle);
