@@ -240,7 +240,7 @@ var stateHandlers = {
         user.reflection.title.text.headline = user.firstname + "'s Memories";
       return {
         user,
-        messageSend: ["I've saved your reflection, thanks for sharing. Your information will always be kept private", 'Check out a visualizaiton of your reflection log at https://pamchatbot.herokuapp.com/' + user._id, "I'll be in touch tomorrow!"]
+        messageSend: ["I've saved your reflection, thanks for sharing. Your information will always be kept private", 'Check out a visualizaiton of your reflection log at https://pamchatbot.herokuapp.com/reflection/' + user._id, "I'll be in touch tomorrow!"]
       }
     },
 
