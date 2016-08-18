@@ -263,7 +263,7 @@ function sendTopicButtons(resp, arr) {
         }
       }
     }
-    var imgArr = ['https://pbs.twimg.com/profile_images/462244617321062400/ZU9gWQ4j_400x400.png','http://s5.favim.com/orig/54/colorful-draw-girl-imagine-Favim.com-536090.jpg','http://www.coloori.com/wp-content/uploads/2016/03/fuseetintin.jpg'];
+    var imgArr = ['https://dl.dropboxusercontent.com/s/hlax1kozzgthrsa/Screen%20Shot%202016-08-18%20at%203.41.41%20PM.png','https://dl.dropboxusercontent.com/s/r8z8nwanwlxzv93/Screen%20Shot%202016-08-18%20at%203.43.52%20PM.png','https://dl.dropboxusercontent.com/s/ticuckmvcvfh8rf/Screen%20Shot%202016-08-18%20at%203.42.24%20PM.png'];
     arr.forEach(function(element, i) {
       var el = {
         "title": element,
