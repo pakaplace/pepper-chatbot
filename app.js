@@ -36,7 +36,7 @@ var User = require('./models/models').User;
 
 app.get('/', function(req, res) {
   // res.send('I am Pam!');
-  res.render('landing')
+  res.render('landing');
 });
 
 //get user's messages and verify the token. This is from the website
