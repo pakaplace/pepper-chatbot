@@ -151,6 +151,9 @@ function uploadVideo(resp, path, text) {
 
 //sendMultiButton creates a message with multiple buttons of the tasks/routines in the array
 function sendMultiButton(resp, arr, text, buttonTitle1, buttonTitle2) {
+  var imageLinks=["https://dl.dropboxusercontent.com/s/xwxy1t1fe19bjg1/Ape2.png",'https://dl.dropboxusercontent.com/s/73he94d4ae7pbsp/Ape3.png', 
+  "https://dl.dropboxusercontent.com/s/tw96donzwg7vvdy/Ape4.png?dl=0", "https://dl.dropboxusercontent.com/s/42z9gxhd2ui6nwo/Ape5.png", 
+  "https://dl.dropboxusercontent.com/s/rax65cihfxsi2dn/Ape6.png"]
   return new Promise(function(resolve, reject) {
     var messageData = {
       "attachment": {
@@ -164,9 +167,9 @@ function sendMultiButton(resp, arr, text, buttonTitle1, buttonTitle2) {
     }
     arr.forEach(function(element,i) {
       var el = {
-        "title": element,
+        "title": "Task "+i+": :"+element,
         // "subtitle": "Element #1 of an hscroll",
-        "image_url": "http://cdn1.bostonmagazine.com/wp-content/uploads/2013/10/mornign-yoga-main.jpg",
+        "image_url": imageLinks[i],
         "buttons": [{
           'type': 'postback',
           'payload': element,
