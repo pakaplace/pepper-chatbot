@@ -23,10 +23,10 @@ var stateHandlers = {
     },
     //ASK_CITIES
     2: function(user, messageReceived){
-      if(messageReceived === "Funny" || messageReceived === "Inspirational" || messageReceived === "Tech"){
+      if(messageReceived === "Funny" || messageReceived === "News" || messageReceived === "Tech"){
         user.topic = messageReceived;
       }
-      else if (messageReceived !== "Funny" || messageReceived !== "Inspirational" || messageReceived !== "Tech"){
+      else if (messageReceived !== "Funny" || messageReceived !== "News" || messageReceived !== "Tech"){
          user.state = 2;
          return{
            user,
@@ -75,7 +75,7 @@ var stateHandlers = {
       }
     },
   //START_MORNING
-    5: function(user, messageReceived) {
+    5: function(user, messageReceived, witData, content) {
       user.state = 6
       return {
         user,
@@ -135,7 +135,7 @@ var stateHandlers = {
       }
     },
     //SHOW_TASKS
-    10: function(user, messageReceived, trump, content) {
+    10: function(user, messageReceived, witData, content) {
       if (messageReceived === "Add another task"){
         user.state = 8;
         return {
@@ -154,7 +154,7 @@ var stateHandlers = {
         user.state = 12
         return {
           user,
-          messageSend: prompts.DONE_WORKING(user)
+          messageSend: prompts.DONE_WORKING(user, content)
         }
       }
       return {
@@ -235,9 +235,9 @@ var stateHandlers = {
             "url": messageReceived
           }
         })
-        user.reflection.title.media.url = '/public/images/logo-pam.gif';
+
+        user.reflection.title.media.url =  user.profile;
         user.reflection.title.text.headline = user.firstname + "'s reflection";
-        // user.reflection.title.text.text =
       return {
         user,
         messageSend: ["I've saved your reflection, thanks for sharing. Your information will always be kept private", 'Check out a visualizaiton of your reflection log at https://3d2eae5e.ngrok.io/reflection/' + user._id, "I'll be in touch tomorrow!"]
