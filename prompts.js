@@ -8,8 +8,9 @@ var path = require('path');
 var prompts = {
   //SETUP
  "WELCOME": function(user){
-   console.log("USER", user)
-   console.log("USER", user.firstname)
+   console.log("[In welcome]");
+  //  console.log("USER", user)
+  //  console.log("USER", user.firstname)
    return  ["Nice to meet you "+ user.firstname, "Your decision to message me was a good one, as you'll see...",
              "I'll text you when I wake up in the mornings, keep track of your tasks, and feed you reflection questions at the end of the day :)"]
  },
@@ -34,7 +35,7 @@ var prompts = {
     }
   },
 
-  "SETUPCOMPLETE": ["You're all set. From now on I'll be encouraging you to stay ahead of your tasks, and to reflect on your daily experiences.", "Tap the menu icon to revise your routine and settings. If you'd like to start now just let me know..."],
+  "SETUPCOMPLETE": ["You're all set. From now on I'll be encouraging you to stay ahead of your tasks, and to reflect on your daily experiences."],
 
   "TASKPROMPT": ["What do you have to do today?", "Separate tasks by comma since I'm dumb"],
 

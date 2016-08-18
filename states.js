@@ -164,7 +164,7 @@ var stateHandlers = {
     },
     // NO_WORKING
     11: function(user, messageReceived) {
-      user.state = 7
+      user.state = 6
       return {
         user,
         messageSend: ['Glad you are back!']
@@ -240,7 +240,7 @@ var stateHandlers = {
         user.reflection.title.text.headline = user.firstname + "'s reflection";
       return {
         user,
-        messageSend: ["I've saved your reflection, thanks for sharing. Your information will always be kept private", 'Check out a visualizaiton of your reflection log at https://3d2eae5e.ngrok.io/reflection/' + user._id, "I'll be in touch tomorrow!"]
+        messageSend: ["I've saved your reflection, thanks for sharing. Your information will always be kept private", 'Check out a visualizaiton of your reflection log at https://pamchatbot.herokuapp.com/' + user._id, "I'll be in touch tomorrow!"]
       }
     },
 
