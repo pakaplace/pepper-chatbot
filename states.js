@@ -235,10 +235,11 @@ var stateHandlers = {
             "url": messageReceived
           }
         })
+
         user.reflection.title.media.url =  user.profile;
         user.reflection.title.text.headline = user.firstname + "'s reflection";
       return {
-        user: user,
+        user,
         messageSend: ["I've saved your reflection, thanks for sharing. Your information will always be kept private", 'Check out a visualizaiton of your reflection log at https://3d2eae5e.ngrok.io/reflection/' + user._id, "I'll be in touch tomorrow!"]
       }
     },

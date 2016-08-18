@@ -53,12 +53,9 @@ app.get('/webhook/', function(req, res) {
 
 var count = 1;
 app.get('/reflection/:id', (req, res, next) => {
-  console.log("ID coming in: ", req.params.id)
   User.findById(req.params.id, function(err, user) {
-    console.log('find user!', user)
     if (err || !user) {return res.status(400).send(err);}
     var data = JSON.stringify(user.reflection);
-    console.log('user.refleciton!', data)
     res.render('reflection', {
       data
     })
