@@ -8,18 +8,19 @@ var path = require('path');
 var prompts = {
   //SETUP
  "WELCOME": function(user){
-   console.log("[In welcome]");
-  //  console.log("USER", user)
-  //  console.log("USER", user.firstname)
-   return  ["Nice to meet you "+ user.firstname, "Your decision to message me was a good one, as you'll see...",
-             "I'll text you when I wake up in the mornings, keep track of your tasks, and feed you reflection questions at the end of the day :)"]
- },
 
- "TOPICS":["What type of content would you like?"],
+   console.log("USER", user)
+   console.log("USER", user.firstname)
+   return  ["Hello there "+ user.firstname, "my name is Pepper and I'm delighted to meet you",
+             "I'll be messaging you in the mornings and throughout the day to keep you on top of your goals",
+             "At night, I'll be prompting you to reflect on your day and will visualize your thoughts in a private memory log"]
+  },
+
+ "TOPICS":["Additionally, I'll be sending you interesting content as a reward for accomplishing your tasks. What are you interested in?"],
 
  "CITY": function(errorMessage){
     if(errorMessage === undefined){
-      return ["What city and state do you live in? I'm from Chapel Hill, North Carolina... "]
+      return ['What city and state do you live in? You could reply with "Chapel Hill, North Carolina" or "Beijing" for example...', "This will help me with sending you local information, like the weather "]
     }
     else{
       return [errorMessage]
@@ -28,7 +29,7 @@ var prompts = {
 
   'TIMETOWAKEUP': function(errorMessage) {
     if(errorMessage === undefined){
-      return ["I'll be on you daily to make sure you stick to your morning routine. What time would you like me to wake up? "]
+      return ["I'll prompt you on the mornings to help you outline your top priorities. What time would you like me to wake up?"]
     }
     else {
       return [errorMessage,'What time would you like me to to wake up?']
@@ -39,7 +40,7 @@ var prompts = {
 
   "TASKPROMPT": ["What do you have to do today?", "Separate tasks by comma since I'm dumb"],
 
-  "TIME_INCOMPLETE":["Please enter a valid time", "Following the hour with AM or PM might help me understand"],
+  "TIME_INCOMPLETE":["Please enter a valid time", "Following the time with AM or PM for better clarity"],
 
   //DAILY
    "WEATHER": function(user, weatherData){
@@ -47,7 +48,7 @@ var prompts = {
       return ["Good morning! Today in " + user.city + " it'll be " + weatherData.text + " with "+ weatherData.temp + "°F. This video should help you get out of bed:"]
     }
     else{
-      return ["Please update your current city in the menu to get weather forecast."]
+      return ["Please update your current city in the menu bar to get weather forecast."]
     }
   },
 
@@ -76,7 +77,7 @@ var prompts = {
       }
   },
 
-  'BEGIN_WORKING_STANDBY':["No worries, type anything to start your tasks."],
+  'BEGIN_WORKING_STANDBY':["Need a minute? When you're ready to start, type anything.."],
 
   'DONE_WORKING': function(user, content){
     var responseArr = ["You're finished "+user.firstname+"! Take pride in what you've done today. If you'd like to add more tasks, tap on the menu icon", "Fantastic, "+user.firstname+"! Time for some well deserved personal time. If you'd like to add more tasks, tap on the menu icon", "Beautifully done, "+user.firstname+"! Let me know if you'd like to add more tasks by tapping on the menu icon"]
@@ -105,7 +106,7 @@ var prompts = {
 
   'NO_WORKING': ["Fine, just let me know when you're ready to begin"],
 
-  'ASK_FOR_TASKS': ['What must you accomplish by the end of the day? I reccomend focusing on five or less tasks.','Type to add a task...'],
+  'ASK_FOR_TASKS': ['What must you accomplish by the end of the day? Personally, I reccomend focusing on five or less tasks.','Reply with a task you have to get done...'],
 
   'ADD_ANOTHER_TASK': {
       "attachment": {

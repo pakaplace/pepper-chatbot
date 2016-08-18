@@ -167,7 +167,7 @@ function sendMultiButton(resp, arr, text, buttonTitle1, buttonTitle2) {
     }
     arr.forEach(function(element,i) {
       var el = {
-        "title": "Task "+i+": :"+element,
+        "title": "Task "+(i+1)+": "+element,
         // "subtitle": "Element #1 of an hscroll",
         "image_url": imageLinks[i],
         "buttons": [{
