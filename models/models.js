@@ -30,6 +30,7 @@ var userSchema = mongoose.Schema({
   city: {
     type: String
   },
+  topic: String,
   timeToWakeUp: [
     {
       time: String,
@@ -44,6 +45,9 @@ var userSchema = mongoose.Schema({
     type: Number
   },
   firstname:{
+    type: String
+  },
+  profile: {
     type: String
   },
   timezone:{

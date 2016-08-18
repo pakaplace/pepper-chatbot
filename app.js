@@ -46,7 +46,7 @@ app.get('/webhook/', function(req, res) {
     return res.send('Error, wrong token');
 });
 
-// // Ethan Debug
+// // // Ethan Debug
 // app.post('/webhook', (req, res) => {
 //   res.send('ethan debug complete :-)')
 // })
@@ -153,7 +153,7 @@ app.post('/webhook/', function(req, res){
     //get user information from facebook
     .then(function(user){
       return new Promise((resolve, reject) => {
-        request('https://graph.facebook.com/v2.6/'+user.facebookId+'?fields=first_name,\
+        request('https://graph.facebook.com/v2.6/'+user.facebookId+'?fields=first_name,profile_pic,\
         timezone,locale,gender&access_token='+TOKEN, (err, req, body) => {
           if (err) {reject(err);}
           if(body){
@@ -163,6 +163,7 @@ app.post('/webhook/', function(req, res){
             user.timezone = body.timezone;
             user.locale = body.locale;
             user.gender = body.gender;
+            user.profile = body.profile_pic;
             console.log("WEBHOOK USER~~~~~", user)
             resolve(user);
           }
@@ -170,11 +171,11 @@ app.post('/webhook/', function(req, res){
       })
     })
     .then(function(user){
-      //get curated content
+      //retrieves curated content
       console.log("USER TOPIC]]]]", user.topic)
       if(user.topic !== undefined){
         return new Promise(function(resolve, reject){
-          var topicTokens ={Funny:'aca1810034a40134947a0242ac110002', Inspirational:'498e21b034aa013423e40242ac110002', Tech:'f56e5410357e013494800242ac110002'};
+          var topicTokens ={Funny:'aca1810034a40134947a0242ac110002', News:'0b8d7f30472d0134291e0242ac110002', Tech:'a55489d0472c013424560242ac110002'};
           console.log("topicTokens[user.topic]", topicTokens[user.topic])
             request({
               url: "https://api.backstit.ch/v2/topics/"+topicTokens[user.topic]+"/results?count=1",
@@ -183,8 +184,11 @@ app.post('/webhook/', function(req, res){
               },
               method: 'GET'
             }, function(error, response, body){
+              console.log("Response", response)
+              console.log(body);
               var body = JSON.parse(body)
               var result = body[0];
+              console.log(body[0]);
                 if(result.type){
                   req.content = result.origin.url;
                   console.log("REQ.CONTENT~~~ ", req.content)
@@ -245,7 +249,7 @@ app.post('/webhook/', function(req, res){
       console.log("messageRecieved~~~~~~~~ ",messageReceived)
 
       if (user.state === 2){
-        sendTopicButtons(user, ["Funny", "Inspirational", "Tech"])
+        sendTopicButtons(user, ["Funny", "News", "Tech"])
       }
       if (user.state >= 100) {
         return sendTextMessages(handle);
@@ -254,20 +258,21 @@ app.post('/webhook/', function(req, res){
         if (user.tasks.length === 0) console.log("this will error, because there are no tasks\nenable ethan debug to continue")
         return sendMultiButton(handle, user.tasks, handle.messageSend, 'Finish', 'Add New Task')
       }
-      else if (user.prevState === 6 || user.prevState === 8 || user.prevState === 12) {
+      else if (user.state === 7 || user.prevState === 8 || user.prevState === 12) {
         return sendButton(handle)
       }
-      // else if (user.state === 16 || user.prevState === 6) {
-        // sendTextMessages(handle, retrieveMediaContent(user.topic))
-      //the video here will be randomly generated later
+      else if (user.prevState === 5) {
+        sendTextMessages(handle)
+        return sendTextMessages({user, messageSend: [req.content]});
+      // the video here will be randomly generated later
         // return sendVideo(handle, 'http://clips.vorwaerts-gmbh.de/VfE_html5.mp4', handle.messageSend) /// SEND CONTENT HERE
-      // }
-      // else if (user.prevState === 8 && user.state === 8) {
-      //   // if (user.routineCopy.length) {
-      //   return sendMorningRoutine(handle, user.routineCopy, handle.messageSend, 'begin', 'finish')
-      // } else if (user.prevState === 8 && user.state === 10) {
-      //     return sendTextMessages({ user: handle.user, messageSend:["Here's a link to a "+ user.topic+ " link that I thought you might like...", req.content]}) // SEND CONTENT HERE sends twice because state and prev state are maintained
-      // }
+      }
+    //   // else if (user.prevState === 8 && user.state === 8) {
+    //   //   // if (user.routineCopy.length) {
+    //   //   return sendMorningRoutine(handle, user.routineCopy, handle.messageSend, 'begin', 'finish')
+    //   // } else if (user.prevState === 8 && user.state === 10) {
+    //   //     return sendTextMessages({ user: handle.user, messageSend:["Here's a link to a "+ user.topic+ " link that I thought you might like...", req.content]}) // SEND CONTENT HERE sends twice because state and prev state are maintained
+    //   // }
       return sendTextMessages(handle)
     })
     .then(function(resp) {

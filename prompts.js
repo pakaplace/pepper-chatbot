@@ -51,7 +51,7 @@ var prompts = {
   },
 
   'START_MORNING': function(user){
-    var responseArr = ["Good morning "+user.firstname+". This video should help get you out of bed!", "Hello there "+user.firstname+". Here's something to brighten this morning", "WAKE UP "+user.firstname+"!!! My dear, did I leave the caps lock on :o . Here's a funny clip to start your morning","Rise and shine "+user.firstname+". I'm funny, don't you think?" ];
+    var responseArr = ["Good morning "+user.firstname+". This video should help get you out of bed!", "Hello there "+user.firstname+". Here's something to brighten this morning", "WAKE UP "+user.firstname+"!!! My dear, did I leave the caps lock on :o . Here's an interesting article to start your morning","Rise and shine "+user.firstname+". I'm funny, don't you think?" ];
     var response = [responseArr[Math.floor(Math.random()*responseArr.length)]] //randomizes response
     return response;
   },
@@ -79,7 +79,7 @@ var prompts = {
 
   'DONE_WORKING': function(user, content){
     var responseArr = ["You're finished "+user.firstname+"! Take pride in what you've done today. If you'd like to add more tasks, tap on the menu icon", "Fantastic, "+user.firstname+"! Time for some well deserved personal time. If you'd like to add more tasks, tap on the menu icon", "Beautifully done, "+user.firstname+"! Let me know if you'd like to add more tasks by tapping on the menu icon"]
-    var response = [responseArr[Math.floor(Math.random()*responseArr.length)]] //randomizes response
+    var response = ["Here's a cool article as a reward for your hard work " + content, responseArr[Math.floor(Math.random()*responseArr.length)]] //randomizes response
     return response;
   },
 
