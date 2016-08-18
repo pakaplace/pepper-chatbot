@@ -235,8 +235,11 @@ var stateHandlers = {
             "url": messageReceived
           }
         })
+        user.reflection.title.media.url = '/public/images/logo-pam.gif';
+        user.reflection.title.text.headline = user.firstname + "'s reflection";
+        // user.reflection.title.text.text =
       return {
-        user: user,
+        user,
         messageSend: ["I've saved your reflection, thanks for sharing. Your information will always be kept private", 'Check out a visualizaiton of your reflection log at https://3d2eae5e.ngrok.io/reflection/' + user._id, "I'll be in touch tomorrow!"]
       }
     },

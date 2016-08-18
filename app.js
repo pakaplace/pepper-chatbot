@@ -53,12 +53,9 @@ app.get('/webhook/', function(req, res) {
 
 var count = 1;
 app.get('/reflection/:id', (req, res, next) => {
-  console.log("ID coming in: ", req.params.id)
   User.findById(req.params.id, function(err, user) {
-    console.log('find user!', user)
     if (err || !user) {return res.status(400).send(err);}
     var data = JSON.stringify(user.reflection);
-    console.log('user.refleciton!', data)
     res.render('reflection', {
       data
     })
@@ -254,7 +251,7 @@ app.post('/webhook/', function(req, res){
         if (user.tasks.length === 0) console.log("this will error, because there are no tasks\nenable ethan debug to continue")
         return sendMultiButton(handle, user.tasks, handle.messageSend, 'Finish', 'Add New Task')
       }
-      else if (user.prevState === 6 || user.prevState === 8 || user.prevState === 12) {
+      else if (user.state === 7 || user.prevState === 8 || user.prevState === 12) {
         return sendButton(handle)
       }
       // else if (user.state === 16 || user.prevState === 6) {
