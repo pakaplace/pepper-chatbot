@@ -16,7 +16,7 @@ var prompts = {
              "At night, I'll be prompting you to reflect on your day and will visualize your thoughts in a private memory log"]
   },
 
- "TOPICS":["Additionally, I'll be sending you interesting content as a reward for accomplishing your tasks. What are you interested in?"],
+ "TOPICS":["Additionally, I'll send you interesting content as a reward for accomplishing your tasks. What are you interested in?"],
 
  "CITY": function(errorMessage){
     if(errorMessage === undefined){
