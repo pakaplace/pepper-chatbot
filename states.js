@@ -216,6 +216,7 @@ var stateHandlers = {
   // REFLECTION_PICTURE_QUESTION
     15: function(user, messageReceived) {
       var date = new Date();
+      user.state = 5; //changes state back to 5:morning routine
       if (messageReceived.indexOf('https') < 0) {
         messageReceived = 'https://source.unsplash.com/category/nature'
       }
