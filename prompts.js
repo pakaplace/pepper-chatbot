@@ -11,15 +11,17 @@ var prompts = {
 
    console.log("USER", user)
    console.log("USER", user.firstname)
-   return  ["Hello there "+ user.firstname, "my name is Pepper and I'm delighted to meet you",
-             "I'll be messaging you in the mornings and throughout the day to keep you on top of your goals",
-             "At night, I'll be prompting you to reflect on your day and will visualize your thoughts in a private memory log"]
+   return  ["Hi there "+ user.firstname, "My name is Pepper and I'm delighted to meet you!",
+             "Together, we'll build a more PRODUCTIVE and MINDFUL routine", "Type anything to get started"]
   },
 
- "TOPICS":["Additionally, I'll send you interesting content as a reward for accomplishing your tasks. What are you interested in?"],
+ "TOPICS":["Additionally, I'll send you tailored news content to enjoy as you complete your list. Tap on one of the options above ^^^"],
 
- "CITY": function(errorMessage){
-    if(errorMessage === undefined){
+ "CITY": function(user, errorMessage){
+    if(errorMessage === undefined && user.locale.indexOf('US')=== -1){
+      return ['What city and country do you live in? For example, you could say "Hamburg, Germany"']
+    }
+    else if(errorMessage === undefined){
       return ['What city and state do you live in? You could reply with "Chapel Hill, North Carolina" or "Beijing" for example...', "This will help me with sending you local information, like the weather "]
     }
     else{
@@ -29,32 +31,34 @@ var prompts = {
 
   'TIMETOWAKEUP': function(errorMessage) {
     if(errorMessage === undefined){
-      return ["I'll prompt you on the mornings to help you outline your top priorities. What time would you like me to wake up?"]
+      return ["What time would you like me to message you in the mornings?", "I'll be sending you readings to get your mind going and recording your agenda..."]
     }
     else {
       return [errorMessage,'What time would you like me to to wake up?']
     }
   },
 
-  "SETUPCOMPLETE": ["You're all set. From now on I'll be encouraging you to stay ahead of your tasks, and to reflect on your daily experiences."],
+  "SETUPCOMPLETE": ["You're all set. Type anything to get started or wait until tomorrow morning..."],
 
   "TASKPROMPT": ["What do you have to do today?", "Separate tasks by comma since I'm dumb"],
 
-  "TIME_INCOMPLETE":["Please enter a valid time", "Following the time with AM or PM for better clarity"],
+  "TIME_INCOMPLETE":["Please enter a valid time", "Following with AM or PM so I don't mess up!"],
 
   //DAILY
-   "WEATHER": function(user, weatherData){
+   "WEATHER": function(user, weatherData, content){
+    console.log("WEATHER CONTENT,", content)
     if(weatherData !== undefined){
-      return ["Good morning! Today in " + user.city + " it'll be " + weatherData.text + " with "+ weatherData.temp + "°F. This video should help you get out of bed:"]
+      return ["Good morning! Today in " + user.city + " it'll be " + weatherData.text + " with "+ weatherData.temp + "°F. Get your mind rolling with this top article - " + content.title+ '"', content.url, "Message me anything to get started"]
     }
     else{
       return ["Please update your current city in the menu bar to get weather forecast."]
     }
   },
 
-  'START_MORNING': function(user){
-    var responseArr = ["Good morning "+user.firstname+". This video should help get you out of bed!", "Hello there "+user.firstname+". Here's something to brighten this morning", "WAKE UP "+user.firstname+"!!! My dear, did I leave the caps lock on :o . Here's an interesting article to start your morning","Rise and shine "+user.firstname+". I'm funny, don't you think?" ];
-    var response = [responseArr[Math.floor(Math.random()*responseArr.length)]] //randomizes response
+  'START_MORNING': function(user, content){
+    var responseArr = ["Good morning "+user.firstname, "Hello there "+user.firstname, "WAKE UP "+user.firstname+". My dear, did I leave the caps lock on :o ","Rise and shine "+user.firstname];
+    console.log("START_MORNING CONTENT", content)
+    var response = [responseArr[Math.floor(Math.random()*responseArr.length)], 'Here\'s some '+user.topic+" news to get your mind running- "+ '"'+content.title+'"', content.url] //randomizes response
     return response;
   },
 
@@ -81,11 +85,11 @@ var prompts = {
 
   'DONE_WORKING': function(user, content){
     var responseArr = ["You're finished "+user.firstname+"! Take pride in what you've done today. If you'd like to add more tasks, tap on the menu icon", "Fantastic, "+user.firstname+"! Time for some well deserved personal time. If you'd like to add more tasks, tap on the menu icon", "Beautifully done, "+user.firstname+"! Let me know if you'd like to add more tasks by tapping on the menu icon"]
-    var response = ["Here's a cool article as a reward for your hard work " + content, responseArr[Math.floor(Math.random()*responseArr.length)]] //randomizes response
+    var response = [responseArr[Math.floor(Math.random()*responseArr.length)], "Here's a cool article as a reward for your hard work " + content.url] //randomizes response
     return response;
   },
 
-  'STALL': {
+  'REFLECT_OPTION': {
         "attachment": {
             "type": "template",
             "payload": {
@@ -106,22 +110,22 @@ var prompts = {
 
   'NO_WORKING': ["Fine, just let me know when you're ready to begin"],
 
-  'ASK_FOR_TASKS': ['What must you accomplish by the end of the day? Personally, I reccomend focusing on five or less tasks.','Reply with a task you have to get done...'],
+  'ASK_FOR_TASKS': [ "What's the most important thing you have to work on today..."],
 
   'ADD_ANOTHER_TASK': {
       "attachment": {
           "type": "template",
           "payload": {
               "template_type": "button",
-              "text": 'Shall I add another task?',
+              "text": 'Shall I add another task? Tap an option...',
               "buttons": [{
                     "type": "postback",
                     "payload": 'yes',
-                    "title": 'Yes'
+                    "title": 'Add task'
                 }, {
                     "type": "postback",
                     "payload": 'no',
-                    "title": 'No'
+                    "title": 'Finished'
                 }]
           }
       }

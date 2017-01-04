@@ -4,23 +4,23 @@ curl -X POST -H "Content-Type: application/json" -d '{
   "call_to_actions":[
     {
       "type":"postback",
-      "title":"Wakeup Time",
+      "title":"Wakeup time",
       "payload":"DEVELOPER_DEFINED_PAYLOAD_FOR_WAKEUP"
     },
     {
       "type":"postback",
-      "title":"Routines",
-      "payload":"DEVELOPER_DEFINED_PAYLOAD_FOR_ROUTINES"
+      "title":"Reflection time",
+      "payload":"DEVELOPER_DEFINED_PAYLOAD_FOR_REFLECTION_TIME"
     },
     {
       "type":"postback",
-      "title":"Message Frequency",
-      "payload":"DEVELOPER_DEFINED_PAYLOAD_FOR_MESSAGE"
+      "title":"Tasks",
+      "payload":"DEVELOPER_DEFINED_PAYLOAD_FOR_TASKS"
     },
-     {
+    {
       "type":"postback",
-      "title":"Reflection Time",
-      "payload":"DEVELOPER_DEFINED_PAYLOAD_FOR_REFLECTION"
-    },
+      "title":"Change city",
+      "payload":"DEVELOPER_DEFINED_PAYLOAD_FOR_CITY"
+    }
   ]
-}' "https://graph.facebook.com/v2.6/me/thread_settings?access_token=EAACGElIklxMBAK0T3R5r0mZCq3ZAl9WgtCm8YWOrk00Lfr68DttqCLvEJxO7ZAFf47nVrGJ3oheDbfUZBTFZBOyK9oRKkMTJ4TiQtYfRyULxbISI2gsD1gpX9f6iL27gjRJB6l2Qodpt3DQZA4c3dhuvUrnbad7JNmp4DoQDEY6AZDZD"
+}' "https://graph.facebook.com/v2.6/me/thread_settings?access_token=EAACGElIklxMBAJS1bm45A140OVBRuvGlIHAVhTBRbMZB6zZAJ3GeNEs7Sc7cWtaZApuF3xhYtQYNPOZAIcej8yLn4g2SFfstxznmOq6xrglbzInATlqfuGoiZBTp6xnSsc1ds0cNrVhm2Ccwen6ZCdacQBeqe7S5NZAvywb7pKFtwZDZD"

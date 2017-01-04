@@ -23,10 +23,10 @@ var stateHandlers = {
     },
     //ASK_CITIES
     2: function(user, messageReceived){
-      if(messageReceived === "Sports" || messageReceived === "News" || messageReceived === "Tech"){
+      if(messageReceived === "sports" || "news" ||  "tech"){
         user.topic = messageReceived;
       }
-      else if (messageReceived !== "Sports" || messageReceived !== "News" || messageReceived !== "Tech"){
+      else if (messageReceived !== "sports" || "news" ||  "tech"){
          user.state = 2;
          return{
            user,
@@ -36,14 +36,14 @@ var stateHandlers = {
       user.state = 3;
       return {
         user,
-        messageSend: prompts.CITY()
+        messageSend: prompts.CITY(user)
       }
     },
   //TIMETOWAKEUP_ASKING
     3: function(user, messageReceived, data) {
       if(data.entities.location === undefined){
         user.state=3;
-        return { user, messageSend: prompts.CITY("Oops, looks like you didn't enter in the name of your state.")
+        return { user, messageSend: prompts.CITY("Oops, looks like you didn't enter in the name of your state. ⚡", user)
         }
       } else {
         user.state = 4
@@ -62,16 +62,28 @@ var stateHandlers = {
         return {user, messageSend: prompts.TIME_INCOMPLETE};
       }
       var dt = new Date(data.entities.datetime[0].values[0].value);
-      user.timeToWakeUp.minute = dt.getMinutes();
-      if(dt.getHours() <= Math.abs(user.timezone)){
-        user.timeToWakeUp.hour = 24 + dt.getHours() + user.timezone;
-      } else {
-        user.timeToWakeUp.hour = dt.getHours() + user.timezone;
+      console.log("wit date data", data.entities.datetime[0].values[0].value)
+
+      user.timeToWakeUp.hour = dt.getHours();
+      var minutes = dt.getMinutes();
+      user.timeToWakeUp.minute = minutes;
+      if(minutes <10){
+        user.timeToWakeUp.minuteString = minutes === 0 ? "00" : minutes <10 ?"0"+ minutes.toString(): minutes.toString();
+        console.log("minute string", user.timeToWakeUp.minuteString);
+        console.log("reached minute string")
       }
-      user.timeToWakeUp.time = user.timeToWakeUp.hour+":"+user.timeToWakeUp.minute;
+      // if(dt.getHours() <= Math.abs(user.timezone)){
+      //   console.log("hours reached")
+      //   user.timeToWakeUp.hour = 24 + dt.getHours() + user.timezone;
+      // } 
+      // else {
+      //   user.timeToWakeUp.hour = dt.getHours() + user.timezone;
+      // }
+      user.timeToWakeUp.time = user.timeToWakeUp.hour+":"+user.timeToWakeUp.minuteString;
+      console.log(user.timeToWakeUp , "time above^^^", user.timeToWakeUp.minuteString)
       return {
         user,
-        messageSend: ["You are set! I'll be contacting you tomorrow morning at "+user.timeToWakeUp.time+ " to help you start your day"]
+        messageSend: ["You're all set! Click the menu button to change preferences at any time. I'll be contacting you tomorrow morning at "+user.timeToWakeUp.time+ " to help you start your day."]
       }
     },
   //START_MORNING
@@ -79,7 +91,7 @@ var stateHandlers = {
       user.state = 6
       return {
         user,
-        messageSend: prompts.START_MORNING(user)
+        messageSend: prompts.START_MORNING(user, content)
       } //send video here
     },
   // START_WORKING
@@ -175,7 +187,7 @@ var stateHandlers = {
       user.state = 13
       return {
         user,
-        messageSend: prompts.STALL
+        messageSend: prompts.REFLECT_OPTION
       }
     },
   // ASK_REFLECTION_QUESTIONS
@@ -185,8 +197,10 @@ var stateHandlers = {
         //choose a random reflection question
         user.reflectionQuestion = prompts.ASK_REFLECTION_QUESTIONS(user.reflectionState);
         user.reflectionState++;
-        if(user.reflectionQuestion === undefined){user.reflectionState = 0} // prevents question not in prompts array from being asked
-      } else {
+        if(user.reflectionQuestion === undefined){
+          user.reflectionState = 0} // prevents question not in prompts array from being asked
+        }
+        else{
         user.state=12;
         user.prevState=10;
         return {
@@ -241,7 +255,7 @@ var stateHandlers = {
         user.reflection.title.text.headline = user.firstname + "'s Memories";
       return {
         user,
-        messageSend: ["I've saved your reflection, thanks for sharing. Your information will always be kept private", 'Check out a visualizaiton of your reflection log at https://pamchatbot.herokuapp.com/reflection/' + user._id, "I'll be in touch tomorrow!"]
+        messageSend: ["I've saved your reflection, thanks for sharing. Your information will always be kept private", 'Check out a visualizaiton of your reflection log at https://b8a2bce7.ngrok.io/reflection/' + user._id, "I'll be in touch tomorrow!"]
       }
     },
 
@@ -280,16 +294,16 @@ var stateHandlers = {
       user.state = user.prevState
       user.prevState = null;
       var CHANGE_CITY = prompts.CHANGE_CITY;
-      CHANGE_CITY += user.city;
+      CHANGE_CITY += user.as;
       return {
         user,
-        messageSend: [CHANGE_CITY]
+        messageSend: [prompts.CHANGE_CITY]
       }
     },
     // EDIT_ROUTINES sendMultiButton creates a message with multiple buttons of the tasks/routines in the array
     102: function(user, messageReceived) {
       // user.state = user.prevState; //remembers where you were before menu
-      console.log("STATE", user.state, "OLD STATE", user.prevState)
+      console.log("STATE", user.state, "PREVIOUS STATE", user.prevState)
       if(messageReceived.indexOf("ADD_NEW_ROUTINE") !== -1 ){
         user.state = 103
         user.prevState = null;
@@ -306,77 +320,79 @@ var stateHandlers = {
         user.prevState = null;
         return {
           user,
-          messageSend: ["Your routine "+ deletedMessage +" has been deleted"]
+          messageSend: ["Your task "+ deletedMessage +" has been deleted"]
         }
       }
     },
+
+
     //add routine
-    103: function(user, messageReceived, data){
-    console.log("USer", user)
-      var newRoutine = {};
-      if(user.missingDuration || user.missingRoutine){
-         newRoutine = {
-           routine: user.missingDuration, //filled in
-           duration: user.missingRoutine //null
-         }
-      }
-      console.log("New Routine", newRoutine)
-      // if(data.entities.agenda_entry === undefined || data.entities.duration === undefined){
-      //   user.state = 2;
-      // }
-      if(data.entities.duration){ //new routine is checked because if one is saved and the other isn't then it must be
-        newRoutine.duration = data.entities.duration[0].normalized.value/60 //to acount for seconds
-        user.missingRoutine = data.entities.duration[0].normalized.value/60
-      }
-      if(data.entities.agenda_entry){
-        newRoutine.routine = data.entities.agenda_entry[0].value; //to acount for seconds
-        user.missingDuration = data.entities.agenda_entry[0].value;
+    // 103: function(user, messageReceived, data){
+    // console.log("USer", user)
+    //   var newRoutine = {};
+    //   if(user.missingDuration || user.missingRoutine){
+    //      newRoutine = {
+    //        routine: user.missingDuration, //filled in
+    //        duration: user.missingRoutine //null
+    //      }
+    //   }
+    //   console.log("New Routine", newRoutine)
+    //   // if(data.entities.agenda_entry === undefined || data.entities.duration === undefined){
+    //   //   user.state = 2;
+    //   // }
+    //   if(data.entities.duration){ //new routine is checked because if one is saved and the other isn't then it must be
+    //     newRoutine.duration = data.entities.duration[0].normalized.value/60 //to acount for seconds
+    //     user.missingRoutine = data.entities.duration[0].normalized.value/60
+    //   }
+    //   if(data.entities.agenda_entry){
+    //     newRoutine.routine = data.entities.agenda_entry[0].value; //to acount for seconds
+    //     user.missingDuration = data.entities.agenda_entry[0].value;
 
-      }
-      if(newRoutine.routine === null || newRoutine.routine === undefined){ // data.entities.location === 'undefined'
+    //   }
+    //   if(newRoutine.routine === null || newRoutine.routine === undefined){ // data.entities.location === 'undefined'
 
-          user.state = 2
-          user.prevState = 1;
-          return {user, messageSend: prompts.SETUP("Woops, either you forgot to include a routine or I didn't pick up on that?")}
-      }
-      if(newRoutine.duration === null || newRoutine.duration === undefined){
+    //       user.state = 2
+    //       user.prevState = 1;
+    //       return {user, messageSend: prompts.SETUP("Woops, either you forgot to include a routine or I didn't pick up on that?")}
+    //   }
+    //   if(newRoutine.duration === null || newRoutine.duration === undefined){
 
-          user.state = 2
-          user.prevState = 1;
-          console.log("Duration undefined")
-          return {user, messageSend: prompts.SETUP("For how long? 5 minutes, half an hour...?")}
-      }
-      else{
-        user.routine.push(newRoutine)
-        // user.state = user.prevState;
-        user.prevState = null;
-        console.log("ROUTINE", newRoutine)
-      }
+    //       user.state = 2
+    //       user.prevState = 1;
+    //       console.log("Duration undefined")
+    //       return {user, messageSend: prompts.SETUP("For how long? 5 minutes, half an hour...?")}
+    //   }
+    //   else{
+    //     user.routine.push(newRoutine)
+    //     // user.state = user.prevState;
+    //     user.prevState = null;
+    //     console.log("ROUTINE", newRoutine)
+    //   }
 
-      // user.save();
-      user.missingRoutine = null;
-      user.missingDuration = null;
-      return {
-        user: user,
-        messageSend:  ["Your Routine " + newRoutine.routine + " for " + newRoutine.duration + " minutes has been added"]
-      }
-    },
-    104:  function(user, messageReceived, data) {
-       //to be changed to change frequency messages
-      user.state = user.prevState; //remembers where you were before menu
-      // user.prevState = null;
-      var CHANGE_TIME = prompts.CHANGE_TIME;
-      // CHANGE_TIME += user.timeToWakeUp;
+    //   // user.save();
+    //   user.missingRoutine = null;
+    //   user.missingDuration = null;
+    //   return {
+    //     user: user,
+    //     messageSend:  ["Your Routine " + newRoutine.routine + " for " + newRoutine.duration + " minutes has been added"]
+    //   }
+    // },
+    // 104:  function(user, messageReceived, data) {
+    //    //to be changed to change frequency messages
+    //   user.state = user.prevState; //remembers where you were before menu
+    //   // user.prevState = null;
+    //   var CHANGE_TIME = prompts.CHANGE_TIME;
+    //   // CHANGE_TIME += user.timeToWakeUp;
 
-      // user.timeToWakeUp.hour = new Date(data.entities.datetime[0].values[0].value).getHours();
-      // user.timeToWakeUp.minute = new Date(data.entities.datetime[0].values[0].value).getMinutes();
-      // user.timeToWakeUp.time = user.timeToWakeUp.hour+":"+user.timeToWakeUp.minute;
+    //   // user.timeToWakeUp.hour = new Date(data.entities.datetime[0].values[0].value).getHours();
+    //   // user.timeToWakeUp.minute = new Date(data.entities.datetime[0].values[0].value).getMinutes();
+    //   // user.timeToWakeUp.time = user.timeToWakeUp.hour+":"+user.timeToWakeUp.minute;
 
-      return {
-        user,
-        messageSend: prompts.CHANGE_FREQ
-      }
-    },
+    //   return {
+    //     user,
+    //     messageSend: prompts.CHANGE_FREQ
+    //   }
+    // },
 
      105:  function(user, messageReceived, data) {
        //to be changed to change frequency messages

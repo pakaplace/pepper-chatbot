@@ -14,6 +14,24 @@ var connect = require('./connect.js');
 // your connect string is not defined or incorrect.
 mongoose.connect(connect);
 
+var newsSchema = mongoose.Schema({
+  tech:[{
+    url: String,
+    title: String
+    // thumbnail: String
+  }],
+  news:[{
+    url: String,
+    title: String
+    // thumbnail: String
+  }],
+  sports:[{
+    url: String,
+    title: String
+    // thumbnail: String
+  }]
+})
+
 var userSchema = mongoose.Schema({
   state: {
     type: Number,
@@ -31,13 +49,12 @@ var userSchema = mongoose.Schema({
     type: String
   },
   topic: String,
-  timeToWakeUp: [
-    {
-      time: String,
-      hour: Number,
-      minute:Number
-    }
-  ],
+  timeToWakeUp: {
+    time: String,
+    hour: Number,
+    minute:Number,
+    minuteString: String
+    },
   tasks:{
     type: Array
   },
@@ -105,5 +122,9 @@ var userSchema = mongoose.Schema({
     }
 });
 
-userSchema.plugin(findOrCreate);
-module.exports = {User: mongoose.model('User', userSchema)};
+newsSchema.plugin(findOrCreate);
+
+module.exports = {
+  User: mongoose.model("User", userSchema),
+  News: mongoose.model('News', newsSchema)
+};

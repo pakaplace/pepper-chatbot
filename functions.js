@@ -1,21 +1,24 @@
 'use strict'
 const request = require('request')
 const TOKEN = process.env.FB_TOKEN
+const prompts = require('./prompts');
 //Models
 var User = require('./models/models').User;
 
 // findOrCreateUser(facebookId<string>)
 // This finds or creates a user given its facebook ID
 function findOrCreateUser(facebookId) {
-
+  console.log(facebookId);
   var promise = new Promise(function(resolve, reject) { //both are functions
     User.findOne({facebookId: facebookId})
       .then(function(user) { //if there is a user
         if (user) {
-          resolve(user); //what is resolve
+          resolve(user); //what is resolves
         } else { //if there is not yet a user
           user = new User({facebookId: facebookId});
-          user.save().then(resolve).catch(reject);
+          console.log("Created new facebook ID")
+          user.save()
+          .then(resolve).catch(reject);
         }
       })
       .catch(reject); //if there is an error
@@ -57,6 +60,7 @@ var sendTextMessages = function(resp) {
 //sendButton handles messages that contains a button
 function sendButton(resp) {
   return new Promise(function(resolve, reject) {
+    console.log("RESP", resp)
     var messageData = resp.messageSend;
     request({
       url: 'https://graph.facebook.com/v2.6/me/messages',
@@ -149,7 +153,7 @@ function uploadVideo(resp, path, text) {
 }
 
 
-//sendMultiButton creates a message with multiple buttons of the tasks/routines in the array
+//sendMultiButton creates a message with multiple buttons of the tasks/routines in the array using gorilla photos
 function sendMultiButton(resp, arr, text, buttonTitle1, buttonTitle2) {
   var imageLinks=["https://dl.dropboxusercontent.com/s/xwxy1t1fe19bjg1/Ape2.png",'https://dl.dropboxusercontent.com/s/73he94d4ae7pbsp/Ape3.png', 
   "https://dl.dropboxusercontent.com/s/tw96donzwg7vvdy/Ape4.png?dl=0", "https://dl.dropboxusercontent.com/s/42z9gxhd2ui6nwo/Ape5.png", 
@@ -167,7 +171,7 @@ function sendMultiButton(resp, arr, text, buttonTitle1, buttonTitle2) {
     }
     arr.forEach(function(element,i) {
       var el = {
-        "title": "Task "+(i+1)+": "+element,
+        "title": "Task "+(i+1)+":  "+element,
         // "subtitle": "Element #1 of an hscroll",
         "image_url": imageLinks[i],
         "buttons": [{
