@@ -1,5 +1,0 @@
-#!/usr/bin/env node
-var User = require('../models/models').User;
-var connect = require('../models/connect.js');
-
-mongoose.connect(connect);
